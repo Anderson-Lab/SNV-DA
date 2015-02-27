@@ -3,7 +3,7 @@ warning off;
 
 % Paths that must be set prior to running this script:
 path_to_opls = 'C:/Users/andersonp/Documents/GitHub/opls/matlab'; % Available at https://github.com/Anderson-Lab/OPLS
-data_dir = '/job_working_directory/mean_of_means/exonic_DiffSets/exonic_top100_diff/'; % This must contain the cross-validation sets
+data_dir = 'C:/Users/andersonp/Desktop/exonic_every_combo_Diffsets/exonic_every_combo_DiffSets/exonic_every_combo_top25_diff'; % This must contain the cross-validation sets
 export_dir = '';
 
 addpath(path_to_opls)
@@ -78,10 +78,6 @@ for z1 = 1:((numClass1))
         classified = [classified;z1];
         classified = [classified;z2+11];
                                 
-        xtrainSubsetSD = xtrainSubsetSNP;
-        %    xtrainSubsetSD(leaveOutIndex,:) = [];
-        xtestSD = xtestSNP;
-        
         % Iterates through the GA
         for n = 1:nIterations            
             % Initializes the fitness funcgtion and population information
