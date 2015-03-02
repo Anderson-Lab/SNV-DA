@@ -1,6 +1,6 @@
 %warning off;
 %matlabpool open local % if you want to use parallel computing tools in MATLAB, uncomment this line
-function snv_run = SNV_DA(data_dir, export_dir, popSize,numClass1, numSamps, randAmount)
+function snv_run = SNV_DA(data_dir, export_dir, popSize,numClass1, numSamps, desiredN, randAmount)
 disp('Running SNV-DA')
 % Paths that must be set prior to running this script:
 path_to_opls = '/Users/DRMRPAUL/repos/OPLS/matlab/'; % Available at https://github.com/Anderson-Lab/OPLS
@@ -36,7 +36,7 @@ allScores = {};
 nIterations = 1; % Number of times to run the GA
 avgNumVariables = 0;
 avgFracASVariables = 0;
-desiredNFeatures = 10; % Target number of features
+desiredNFeatures = desiredN; % Target number of features
 randomness=randAmount; % Randomness specified while creating initial population
 
 gotWrong = [];
@@ -51,24 +51,18 @@ Y_real_preds = [];
 totalCount = 1;
 num_OPLS_fact = 1;  %%% number of orthogonal components in opls model
 
-% These should all come from a metadata file
-% This needs to be read in as part of the data file
-%if first == 1
-%    [m,n] = size(xtrainSubsetSNP);
-%    numClass2 = numClass1 - m;
-%    disp(numClass2);
-%end
 
 numClass2 = numSamps - numClass1;
 
-ytrainSubsetSNP = [zeros(numClass1-1,1);ones(numClass2-1,1)];
-ytestDE = [0,1];
-ytestDE = ytestDE';% Iterates through the GA
+ytrainSubset = [zeros(numClass1-1,1);ones(numClass2-1,1)];
+ytest = [0,1];
+ytest = ytest';% Iterates through the GA
 GAcount = 1;
 first = 1;
 totalGeneSubset = [];
 bestChrSubset = [];
 bestFitnessScores = [];
+numModels = 0;
 for z1 = 1:((numClass1))
     for z2 = 1:((numClass2))
         
@@ -76,13 +70,13 @@ for z1 = 1:((numClass1))
         if present ~= 2
             continue
         end
-            
+        numModels = numModels + 1;
         disp(strcat('GA: ',num2str(GAcount))); 
         GAcount = GAcount + 1;
-        xtrainSubsetSNP = csvread(strcat(data_dir,'/training.data.',num2str(z1-1),'.',num2str(z2-1),'.csv'));
-        xtrainSubsetSNP = xtrainSubsetSNP';
-        xtestSNP = csvread(strcat(data_dir,'/test.data.',num2str(z1-1),'.',num2str(z2-1),'.csv'));
-        xtestSNP = xtestSNP';
+        xtrainSubset = csvread(strcat(data_dir,'/training.data.',num2str(z1-1),'.',num2str(z2-1),'.csv'));
+        xtrainSubset = xtrainSubset';
+        xtest = csvread(strcat(data_dir,'/test.data.',num2str(z1-1),'.',num2str(z2-1),'.csv'));
+        xtest = xtest';
         gene_names = dataset('file', strcat(data_dir,'/feature.names.',num2str(z1-1),'.',num2str(z2-1),'.csv'), 'delimiter', ',','ReadVarNames','off');
 
         
@@ -98,10 +92,10 @@ for z1 = 1:((numClass1))
         % Iterates through the GA
         for n = 1:nIterations            
             % Initializes the fitness funcgtion and population information
-            %fitness = @(member) (finalFitness(member,xtrainDE,ytrainDE, xtrainSubsetAS,ytrainSubsetAS, xtrainSNP, xtestSNP, xtestDE, ytestDE, xtestAS, ytestAS ,gene_namesDE,gene_namesAS,a,desiredNFeatures,method, data, xtrainSubsetSD, xtestSD,kernel));
-            fitness = @(member) (custom_fitness(member,ytrainSubsetSNP, xtrainSubsetSNP, num_OPLS_fact,desiredNFeatures));
+           
+            fitness = @(member) (custom_fitness(member,ytrainSubset, xtrainSubset, num_OPLS_fact,desiredNFeatures));
             
-            dataSize = size(xtrainSubsetSNP,2);
+            dataSize = size(xtrainSubset,2);
             initPop = zeros(popSize,dataSize);
             
             % Creates the starting population
@@ -159,18 +153,18 @@ for z1 = 1:((numClass1))
         %End GAs for each sample
         
         
-        TrainSubset = xtrainSubsetSNP(:,bestIndx);
-        TestSubset = xtestSNP(:,bestIndx);
+        TrainSubset = xtrainSubset(:,bestIndx);
+        TestSubset = xtest(:,bestIndx);
         subset150{totalCount} = bestIndx;
         totalCount = totalCount + 1;
         
 	
-        [model, stats] = opls(TrainSubset, ytrainSubsetSNP, num_OPLS_fact);
-        [t,t_ortho,Y_pred] = apply_opls_model(TrainSubset,ytrainSubsetSNP,model,TestSubset);
+        [model, stats] = opls(TrainSubset, ytrainSubset, num_OPLS_fact);
+        [t,t_ortho,Y_pred] = apply_opls_model(TrainSubset,ytrainSubset,model,TestSubset);
          Y_real_preds = [Y_real_preds;Y_pred];
         Y_pred = round(Y_pred);
         for i = 1:length(Y_pred)
-        if (Y_pred(i) == ytestDE(i))
+        if (Y_pred(i) == ytest(i))
             predicted = predicted + 1;
         else
             gotWrong = [gotWrong;leaveOutIndex(i)];
@@ -199,38 +193,40 @@ for i = 1:length(ROC_labels)
     end
 end
 
-ROC_scores = Y_real_preds;
+group1_wrong = 0;
+group2_wrong = 0;
+for i = 1:length(wrongIndx)
+    if (wrongIndx(i) <= numClass1)
+        group1_wrong = group1_wrong + wrongCounts(i);
+    else
+        group2_wrong = group2_wrong + wrongCounts(i);
+    end
+end
 
-df = dataset({},{},'VarNames',{'Sample','wrongCounts'});
-df.Sample = wrongIndx;
-df.wrongCounts = wrongCounts;
-export(df,'file',strcat(export_dir,'/ROC_SNP_wrong_frequencies.txt'));
+group1_sens = (numModels - group1_wrong) / numModels;
+group2_sens = (numModels - group2_wrong) / numModels;
 
-df = dataset({}, 'VarNames',{'PredictPercent'});
-df.PredictPercent = allPred;
-export(df,'file',strcat(export_dir,'/ROC_SNP_predict_percent.txt'));
-
-df = dataset({},{},'VarNames',{'TopGeneNames','TopGeneNums'});
+df = dataset({},{},'VarNames',{'Top_SNVs','Model_Frequenxt'});
 df.TopGeneNames = topGeneFreqNames;
-df.TopGeneNums = topGeneFreqNums;
-df
-export(sortrows(df,'TopGeneNums','descend'),'file',strcat(export_dir,'/ROC_SNP_top_ALL_frequencies.txt'));
+df.TopGeneNums = topGeneFreqNums/numModels;
+export(sortrows(df,'TopGeneNums','descend'),'file',strcat(export_dir,'/top_SNVs.txt'));
 
+ROC_scores = Y_real_preds;
 [ROC_X,ROC_Y,~,ROC_AUC] = perfcurve(ROC_labels,ROC_scores,1,'nboot',1000);
-
-df = dataset({},{},{},'VarNames',{'ROC_X','ROC_Y','ROC_AUC'});
-df.ROC_X = ROC_X;
-df.ROC_Y = ROC_Y;
-df.ROC_AUC = ROC_AUC;
-export(df,'file',strcat(export_dir,'/ROC_SNP_FigStats.txt'));
 
 f = figure;
 
 [ROC_X,ROC_Y] = perfcurve(ROC_labels,ROC_scores,1);
 plot(ROC_X,ROC_Y);
-saveas(f,strcat(export_dir,'/ROC_SNP_Plot.fig'));
+saveas(f,strcat(export_dir,'/ROC_plot.fig'));
 
-matlabpool close
+report=fopen(strcat(export_dir,'/model_stats_report.txt'),'w');
+fprintf(report, '%6s\t%12s\t%6s\t%12s\n','Prediction_Accuracy', 'AUC[95% CI]', 'Group1_Sensitivity', 'Group2_Sensitivity');
+fprintf(report, '%.4f\t%.4f[%.4f-%.4f]\t%.4f\t%.4f\n', allPred, ROC_AUC, group1_sens, group2_sens);
+fclose(report);
+
+
+
 
 
 
