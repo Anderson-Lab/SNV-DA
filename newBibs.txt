@@ -1,0 +1,267 @@
+\bibitem[Wang \textit{et~al}., 2010]{ANNOVAR}
+Wang, K., Li, M., Hakonarson, H. (2010) ANNOVAR: functional annotation of genetic variants from high-throughput sequencing data, {\it Nucleic Acids Research}, {\bf 38:e16}4, .
+
+\bibitem[Aberle \textit{et~al}., 2011]{Aberle2011}
+Aberle, DR., Adams, AM., Berg, CD., Black, WC., Clapp, JD., Fagerstrom, R., Gareen, IF., Gatsonis, C., Marcus, PM., Sicks, JD. (2011) Reduced lung-cancer mortality with low-dose computed tomographic screening, {\it N Engl J Med}, {\bf 365}(5), 395-409.
+
+\bibitem[Ajona \textit{et~al}., 2013]{Ajona2013}
+Ajona, D., Pajares, MJ., Corrales, L., Perez-Gracia, JL., Agorreta, J., Lozano, MD., Torre, W., Massion, PP., de-Torres, JP., Jantus-Lewintre, E., Camps, C., Zulueta, JJ., Montuenga, LM., Pio, R. (2013) Investigation of Complement Activation Product C4d as a Diagnostic and Prognostic Biomarker for Lung Cancer. , {\it Journal of the National Cancer Institute}, {\bf 105}(18), 1385-1393.
+
+\bibitem[Altshuler \textit{et~al}., 2008]{Altshuler2008}
+Altshuler, D., Daly, MJ., Lander, ES. (2008) Genetic Mapping in Human Disease, {\it Science}, {\bf 322}(5903), 881-888.
+
+\bibitem[Anderson \textit{et~al}., 2014]{Anderson2014}
+Anderson, P., Paul, MR., McCaffrey, V., Hazard, E., Watson, PM., Wilson, R., Denlinger, CE., Watson, DK. (2014) Predictive modeling of lung cancer recurrence using alternative splicing events versus differential expression data, {\it Computational Intelligence in Bioinformatics and Computational Biology IEEE Conference}, {\bf }, 1,8,21-24.
+
+\bibitem[Ariel \textit{et~al}., 2000]{Ariel2000}
+Ariel, I., de., Groot, N., Hochberg, A. (2000) Imprinted H19 gene expression in embryogenesis and human cancer: the oncofetal connection, {\it American Journal of Medical Genetics}, {\bf 91}(1), 45-50.
+
+\bibitem[Arshadi \textit{et~al}., 2009]{Arshadi2009}
+Arshadi, N., Chang, B., Kustra, R. (2009) Predictive modeling in case-control single-nucleotide polymorphism studies in the presence of population stratification: a case study using Genetic Analysis Workshop 16 Problem 1 dataset, {\it BMC Proceedings}, {\bf 3}(Suppl 7):S60, 2725–2737.
+
+\bibitem[Bausch \textit{et~al}., 2011]{Bausch2011}
+Bausch, D., Thomas, S., Mino-Kenudson, M., Fernández-del, CC., Bauer, TW., Williams, M., Warshaw, AL., Thayer, SP., Kelly, KA. (2011) Plectin-1 as a novel biomarker for pancreatic cancer, {\it Clinical Cancer Research}, {\bf 17}(2), 302-9.
+
+\bibitem[Beer \textit{et~al}., 2002]{Beer2002}
+Beer, DG., Kardia, SL., Huang, CC., Giordano, TJ., Levin, AM., Misek, DE., Lin, L., Chen, G., Gharib, TG., Thomas, DG., Lizyness, ML., Kuick, R., Hayasaka, S., Taylor, JM., Iannettoni, MD., Orringer, MB., Hanash, S. (2002) Gene-expression profiles predict survival of  patients with lung adenocarcinoma, {\it Nature Medicine}, {\bf 8}(8), 816-24.
+
+\bibitem[Betel \textit{et~al}., 2008]{Betel2008}
+Betel, D., Wilson, M., Gabow, A., Marks, DS., Sander, C. (2008) The microRNA.org resource: targets and expression, {\it Nucleic Acids Research}, {\bf 3}6, D149-53.
+
+\bibitem[Blankenberg \textit{et~al}., 2010]{Blankenberg2010}
+Blankenberg, D., Gordon, A., Von., Kuster, G., Coraor, N., Taylor, J., Nekrutenko, A. (2010) Manipulation of FASTQ data with Galaxy, {\it Bioinformatics}, {\bf 26}(14), 1783-5.
+
+\bibitem[Blumenthal \textit{et~al}., 2007]{Blumenthal2007}
+Blumenthal, RD., Leon, E., Hansen, HJ., Goldenberg, DM. (2007) Expression patterns of CEACAM5 and CEACAM6 in primary and metastatic cancers, {\it BMC Cancer}, {\bf 7:}2, .
+
+\bibitem[Botling \textit{et~al}., 2012]{Botling2012}
+Botling, Johan., Edlund, Karolina., Lohr, Miriam. (2012) Biomarker discovery in non-small cell lung cancer : integrating gene expression profiling , meta-analysis and tissue microarray validation, {\it Cell}, {\bf 19}(1), 1107-1120.
+
+\bibitem[Bylesjö \textit{et~al}., 2006]{Bylesjo2006}
+Bylesjö, M., Rantalainen, M., Cloarec, O., Nicholson, JK., Holmes, E., Trygg, J. (2006) OPLS discriminant analysis: combining the strengths of PLS-DA and SIMCA classification, {\it Journal of Chemometrics}, {\bf 20}(8-10), 341-351.
+
+\bibitem[Kemp \textit{et~al}., 2014]{CTCF}
+Kemp, CJ., Moore, JM., Moser, R., Bernard, B., Teater, M., Smith, LE., Rabaia, NA., Gurley, KE., Guinney, J., Busch, SE., Shaknovich, R., Lobanenkov, VV., Liggitt, D., Shmulevich, I., Melnick, A., Filippova, GA. (2014) CTCF Haploinsufficiency Destabilizes, {\it Cell Reports}, {\bf }7, 1020–1029,.
+
+\bibitem[Cai \textit{et~al}., 2013]{Cai2013}
+Cai, J., Wu, J., Zhang, H., Fang, L., Huang, Y., Yang, Y., Zhu, X., Li, R., Li, M. (2013) miR-186 downregulation correlates with poor survival in lung adenocarcinoma, where it interferes with cell-cycle regulation, {\it Cancer Research}, {\bf 73}(2), 756-66.
+
+\bibitem[Carramusa \textit{et~al}., 2007]{Carramusa2007}
+Carramusa, L., Contino, F., Ferro, A., Minafra, L., Perconti, G., Giallongo, A., et., al.., . (2007) The PVT-1 oncogene is a Myc protein target that is overexpressed in transformed cells, {\it Journal of Cell Physiology}, {\bf 213}(2), 511-8.
+
+\bibitem[Chaffer \textit{et~al}., 2011]{Chaffer2011}
+Chaffer, CL., Weinberg, RA. (2011) A perspective on cancer cell metastasis, {\it Science}, {\bf 331}(6024), 1559-1564.
+
+\bibitem[Chakravarti \textit{et~al}., 2001]{Chakravarti2001}
+Chakravarti, A. (2001) Single nucleotide polymorphisms: . . .to a future of genetic medicine, {\it Nature}, {\bf 40}9, 822-823.
+
+\bibitem[Chen \textit{et~al}., 2014]{Chen2014}
+Chen, SX., Xu, XE., Wang, XQ., Cui, SJ., Xu, LL., Jiang, YH., Zhang, Y., Yan, HB., Zhang, Q., Qiao, J., Yang, PY., Liu, F. (2014) Identification of colonic fibroblast secretomes reveals secretory factors regulating colon cancer cell proliferation, {\it Journal of Proteomics}, {\bf 11}0, 155-71.
+
+\bibitem[Dietrich \textit{et~al}., 2010]{Dietrich2010}
+Dietrich, MF., van., der., Weyden, L., Prosser, HM., Bradley, A., Herz, J., et., al.., . (2010) Ectodomains of the LDL Receptor-Related Proteins LRP1b and LRP4 Have Anchorage Independent Functions In Vivo, {\it PLoS ONE}, {\bf 5}(4), e9960.
+
+\bibitem[Elsum \textit{et~al}., 2014]{Elsum2014}
+Elsum, IA., Yates, LL., Pearson, HB., Phesse, TJ., Long, F., O'Donoghue, R., Ernst, M., Cullinane, C., Humbert, PO. (2014) Scrib heterozygosity predisposes to lung cancer and cooperates with KRas hyperactivation to accelerate lung cancer progression in vivo, {\it Oncogene}, {\bf 33}(48), 5523-33.
+
+\bibitem[Fu \textit{et~al}., 2006]{Fu2006}
+Fu, X., Ravindranath, L., Tran, N., Petrovics, G., Srivastava, S. (2006) Regulation of apoptosis by a prostate-specific and prostate cancer-associated noncoding gene, PCGEM1, {\it DNA Cell Biology}, {\bf 25}(3), 135-41.
+
+\bibitem[Furrukh \textit{et~al}., 2013]{Furrukh2013}
+Furrukh, M., Al-Moundhri, M., Zahid, KF., Kumar, S., Burney, I. (2013) {Customised, Individualised Treatment of Metastatic Non-Small-Cell Lung Carcinoma, {\it Sultan Qaboos University Medical Jornal}, {\bf 1}3, 202-217.
+
+\bibitem[Zheng \textit{et~al}., 2011]{GATA1}
+Zheng, R., Blobel, GA. (2011) GATA Transcription Factors and Cancer, {\it Genes & Cancer}, {\bf 1}(12), 1178–1188.
+
+\bibitem[Hu \textit{et~al}., 2008]{Hu2008}
+Hu, Z., Chen, J., Tian, T., Zhou, X., Gu, H., Xu, L., Zeng, Y., Miao, R., Jin, G., Ma, H., Chen, Y., Shen, H. (2008) Genetic variants of miRNA sequences and non-small cell lung cancer survival, {\it J Clin Invest}, {\bf 118}(7), 2600-8.
+
+\bibitem[Huang \textit{et~al}., 2014]{Huang2014}
+Huang, WC., Chan, SH., Jang, TH., Chang, JW., Ko, YC., Yen, TC., Chiang, SL., Chiang, WF., Shieh, TY., Liao, CT., Juang, JL., Wang, HC., Cheng, AJ., Lu, YC., Wang, LH. (2014) miRNA-491-5p and GIT1 serve as modulators and biomarkers for oral squamous cell carcinoma invasion and metastasis, {\it Cancer Research}, {\bf 74}(3), 751-64.
+
+\bibitem[Hunt \textit{et~al}., 2014]{Hunt2009}
+Hunt, R., Sauna, ZE., Ambudkar, SV., Gottesman, MM., Kimchi-Sarfaty, C. (2014) World Cancer Report 2014, {\it Methods in Molecular Biology}, {\bf 57}8, 23-39.
+
+\bibitem[Igci \textit{et~al}., 2011]{Igci2011}
+Igci, YZ., Arslan, A., Akarsu, E., Erkilic, S., Igci, M., Oztuzcu, S., Cengiz, B., Gogebakan, B., Cakmak, EA., Demiryurek, AT. (2011) Differential expression of a set of genes in follicular and classic variants of papillary thyroid carcinoma, {\it Endocrine Pathology}, {\bf 22}(2), 86-96.
+
+\bibitem[Imielinski \textit{et~al}., 2012]{Imielinski2012}
+Imielinski, Marcin., Berger, Alice., H., Hammerman, Peter., S., Hernandez, Bryan., Pugh, Trevor., J., Hodis, Eran., Cho, Jeonghee., Suh, James., Capelletti, M., Sivachenko, A., Sougnez, C., Auclair, D., Lawrence, MS., Stojanov, P., Cibulskis, K., Choi, K., de., Waal, L., Sharifnia, T., Brooks, A., Greulich, H., Banerji, S., Zander, T., Seidel, D., Leenders, F., Ansén, S., Ludwig, C., Engel-Riedel, W., Stoelben, E., Wolf, J., Goparju, C., Thompson, K., Winckler, W., Kwiatkowski, D., Johnson, BE., Jänne, PA., Miller, VA., Pao, W., Travis, WD., Pass, HI., Gabriel, SB., Lander, ES., Thomas, RK., Garraway, LA., Getz, G., Meyerson, M.. (2012) Mapping the Hallmarks of Lung Adenocarcinoma with Massively Parallel Sequencing, {\it Cell}, {\bf 150}(6), 1107-1120.
+
+\bibitem[Jagannathan \textit{et~al}., 2014]{Jagannathan2014}
+Jagannathan, S., Vad, N., Vallabhapurapu, S., Vallabhapurapu, S., Anderson, KC., Driscoll, JJ. (2014) MiR-29b replacement inhibits proteasomes and disrupts aggresome+autophagosome formation to enhance the antimyeloma benefit of bortezomib, {\it Leukemia}, {\bf }, .
+
+\bibitem[Johnsen \textit{et~al}., 2009]{Johnsen2009}
+Johnsen, SA., Güngör, C., Prenzel, T., Riethdorf, S., Riethdorf, L., Taniguchi-Ishigaki, N., Rau, T., Tursun, B., Furlow, JD., Sauter, G., Scheffner, M., Pantel,K., Gannon, F., Bach, I. (2009) Regulation of Estrogen-Dependent Transcription by the LIM Cofactors CLIM and RLIM in Breast Cancer, {\it Cancer Research}, {\bf 69}(1), 128-136.
+
+\bibitem[Kalari \textit{et~al}., 2012]{Kalari2012}
+Kalari, KR., Rossell, D., Necela, BM., Asmann, YW., Nair, A., Baheti, S., Kachergus, JM., Younkin, CS., Baker, T., Carr, JM., Tang, X., Walsh, MP., Chai, HS., Sun, Z., Hart, SN., Leontovich, AA., Hossain, A., Kocher, JP., Perez, EA., Reisman, DN., Fields, AP., Thompson, EA.. (2012) {Deep Sequence Analysis of Non-Small Cell Lung Cancer: Integrated Analysis of Gene Expression, Alternative Splicing, and Single Nucleotide Variations in Lung Adenocarcinomas with and without Oncogenic KRAS Mutations, {\it Frontiers in Oncology}, {\bf }2, 12.
+
+\bibitem[Katoh \textit{et~al}., 2013]{Katoh2013}
+Katoh, M. (2013) Functional proteomics, human genetics and cancer biology of GIPC family members, {\it Experimental & Molecular Medicine}, {\bf 45:e2}6, .
+
+\bibitem[Kazazian \textit{et~al}., 2002]{Kazazian2002}
+Kazazian, HH., Goodier, JL. (2002) LINE drive: retrotransposition and genome instability, {\it Cell}, {\bf 110}(3), 277-80.
+
+\bibitem[Kent \textit{et~al}., 2002]{Kent2002}
+Kent, WJ. (2002) BLAT--the BLAST-like alignment tool, {\it Genome Research}, {\bf 12}(4), 656-64.
+
+\bibitem[Kohavi \textit{et~al}., 1997]{Kohavi1997}
+Kohavi, R., John, JH. (1997) Wrappers for feature subset selection , {\it Artifical Intelligence}, {\bf 9}7, 273-324.
+
+\bibitem[ Kucerová \textit{et~al}., 2001]{Kucerová2001}
+ Kucerová, D., Sloncová, E., Tuhácková, Z., Vojtechová, M., Sovová, V. (2001) Expression and interaction of different catenins in colorectal carcinoma cells, {\it International Journal of Molecular Medicine}, {\bf 8}(6), 695-8.
+
+\bibitem[Kudo-Saito \textit{et~al}., 2013]{Kudo-Saito2013}
+Kudo-Saito, C. (2013) FSTL1 promotes bone metastasis by causing immune dysfunction, {\it Oncoimmunology}, {\bf 2}(11):e26528, .
+
+\bibitem[Kumar \textit{et~al}., 2012]{Kumar2012}
+Kumar, S., Banks, TW., Cloutier, S. (2012) SNP discovery through next-generation sequencing and its applications, {\it International Journal of Plant Genomics.}, {\bf 201}2, 175-80.
+
+\bibitem[Larsson \textit{et~al}., 2008]{Larsson2008}
+Larsson, J., Forsberg, M., Brännvall, K., Zhang, XQ., Enarsson, M., Hedborg, F., Forsberg-Nilsson, K. (2008) Nuclear receptor binding protein 2 is induced during neural progenitor differentiation and affects cell survival, {\it Molecular and Cellular Neuroscience}, {\bf 39}(1), 32-9.
+
+\bibitem[Lee \textit{et~al}., 2012]{Lee2012}
+Lee, YH., Choi, SJ., Ji, JD., Song, GG. (2012) Genome-wide pathway analysis of a genome-wide association study on psoriasis and Behcet's disease, {\it Molecular Biology Reports}, {\bf 39}(5), 5953-9.
+
+\bibitem[Lee \textit{et~al}., 2013]{Lee2013}
+Lee, SH., Zhu, C., Peng, Y., Johnson, DT., Lehmann, L., Sun, Z. (2013) Identification of a novel role of ZMIZ2 protein in regulating the activity of the Wnt/β-catenin signaling pathway, {\it The Journal of Biological Chemistry}, {\bf 288}(50), 35913-24.
+
+\bibitem[Li \textit{et~al}., 2009]{Li&Durbin2009}
+Li, H., Durbin, R. (2009) Fast and accurate short read alignment with Burrows-Wheeler transform, {\it Bioinformatics}, {\bf 25}(14), 1754-1760.
+
+\bibitem[Li \textit{et~al}., 2009]{Li2009}
+Li, H., Handsaker, B., Wysoker, A., Fennell, T., Ruan, J., Homer, N., Marth, G., Abecasis, G., Durbin, R., 1000., Genome., Project., Data., Processing., Subgroup. (2009) The Sequence Alignment/Map format and SAMtools, {\it Bioinformatics}, {\bf 25}(16), 2078-2079.
+
+\bibitem[Li \textit{et~al}., 2013]{Li2013}
+Li, S., Sheng, J., Hu, JK., Yu, W., Kishikawa, H., Hu, MG., Shima, K., Wu, D., Xu, Z., Xin, W., Sims, KB., Landers, JE., Brown, RH., Jr., Hu, GF. (2013) Ribonuclease 4 protects neuron degeneration by promoting angiogenesis, neurogenesis, and neuronal survival under stress, {\it Angiogenesis}, {\bf 16}(2), 387-404.
+
+\bibitem[1302 \textit{et~al}., 2012]{Lin2012a}
+1302, author., reply. (2012) Comment on ‘‘Widespread RNA and DNA sequence differences in the human transcriptome’’, {\it Science}, {\bf 33}5, 1754-1760.
+
+\bibitem[Lin \textit{et~al}., 2012]{Lin2012b}
+Lin, M., Eng, C., Hawk, ET., ., Huang, M., Greisinger, AJ., Gu, J., Ellis, LM., Wu, X., Lin, J. (2012) Genetic variants within ultraconserved elements and susceptibility to right- and left-sided colorectal adenocarcinoma, {\it Carcinogenesis}, {\bf 33}(4), 841-7.
+
+\bibitem[Lindblad-Toh \textit{et~al}., 2011]{Lindblad-Toh2011}
+Lindblad-Toh, K., Garber, M., Zuk, O., Lin, MF., Parker, BJ., Washietl, S., Kheradpour, P., Ernst, J., Jordan, G., Mauceli, E., Ward, LD., Lowe, CB., Holloway, AK., Clamp, M., Gnerre, S., Alföldi, J., Beal, K., Chang, J., Clawson, H., Cuff, J., Palma, FD., Fitzgerald, S., Flicek, P., Guttman, M., Hubisz, MJ. (2011) A high-resolution map of human evolutionary constraint using 29 mammals, {\it Nature}, {\bf 47}8, 476-482.
+
+\bibitem[Listgarten \textit{et~al}., 2004]{Listgarten2004}
+Listgarten, J., Damaraju, S., Poulin, B., Cook, L., Dufour, J., Driga, A., Mackey, J., Wishart, D., Greiner, R., Zanke, B. (2004) Predictive models for breast cancer susceptibility from multiple single nucleotide polymorphisms, {\it Clinical Cancer Research}, {\bf 1}0, 2725–2737.
+
+\bibitem[Russell \textit{et~al}., 2014]{Liu1997}
+Russell, MR., Penikis, A., Oldridge, D., Diamond, M., Diskin, S., Maris, J., Cole, K. (2014) The long intergenic noncoding RNA LINC00340 is a neuroblastoma susceptibility gene, {\it Oncogene}, {\bf 15}(20), 2463-73.
+
+\bibitem[Liu \textit{et~al}., 2014]{Liu2014}
+Liu, B., Liu, Q., Song, Y., Li, X., Wang, Y., Wan, S., Zhang, Z., Su, H. (2014) Polymorphisms of HIF1A gene are associated with prognosis of early stage non-small-cell lung cancer patients after surgery, {\it Med Oncol}, {\bf 31}(4), 877.
+
+\bibitem[Lu \textit{et~al}., 2013]{Lu2013}
+Lu, C., Zhang, J., He, S., Wan, C., Shan, A., Wang, Y., Yu, L., Liu, G., Chen, K., Shi, J., Zhang, Y., Ni, R. (2013) Increased \(\alpha\)-tubulin1b expression indicates poor prognosis and resistance to chemotherapy in hepatocellular carcinoma, {\it Digestive Disease and Sciences}, {\bf 58}(9), 2713-20.
+
+\bibitem[Luczka \textit{et~al}., 2013]{Luczka2013}
+Luczka, E., Syne, L., Nawrocki-Raby, B., Kileztky, C., Hunziker, W., Birembaut, P., Gilles, C., Polette, M.. (2013) Regulation of membrane-type 1 matrix metalloproteinase expression by zonula occludens-2 in human lung cancer cells, {\it Clinical and Experimental Metastasis}, {\bf 30}(7), 833-843.
+
+\bibitem[Maranville \textit{et~al}., 2011]{Maranville2011}
+Maranville, JC., Luca, F., Richards, AL., Wen, X., Witonsky, DB., Baxter, S., Stephens, M., Di., Rienzo, A. (2011) Interactions between glucocorticoid treatment and cis-regulatory polymorphisms contribute to cellular response phenotypes, {\it PLoS Genetics}, {\bf 7}(7):e1002162, .
+
+\bibitem[Marchitti SA1 \textit{et~al}., 2010]{Marchitti2010}
+Marchitti., SA1, Orlicky., DJ, Brocker., C, Vasiliou., V.. (2010) Aldehyde dehydrogenase 3B1 (ALDH3B1): immunohistochemical tissue distribution and cellular-specific localization in normal and cancerous human tissues, {\it Journal of Histochemistry & Cytochemistry}, {\bf 58}(9), 765-83.
+
+\bibitem[Maurano \textit{et~al}., 2012]{Maurano2012}
+Maurano, MT., Humbert, R., Rynes, E., Thurman, RE., Haugen, E., Wang, H., Reynolds, AP., Sandstrom, R., Qu, H., Brody, J., Shafer, A., Neri, F., Lee, K., Kutyavin, T., Stehling-Sun, S., Johnson, AK., Canfield, TK., Giste, E., Diegel, M., Bates, D., Hansen, RS., Neph, S., Sabo, PJ., Heimfeld, S., Raubitschek, A., Ziegler, S., Cotsapas, C., Sotoodehnia, N., Glass, I., Sunyaev, SR., Kaul, R., Stamatoyannopoulos, JA. (2012) Systematic localization of common disease-associated variation in regulatory DNA, {\it Science}, {\bf 337}(6099), 1190-5.
+
+\bibitem[McKenna \textit{et~al}., 2010]{McKenna2010}
+McKenna, A., Hanna, M., Banks, E., Sivachenko, A., Cibulskis, K., Kernytsky, A., Garimella, K., Altshuler, D., Gabriel, S., Daly, M., DePristo, MA. (2010) The Genome Analysis Toolkit: a MapReduce framework for analyzing next-generation DNA sequencing data, {\it Genome Research}, {\bf 2}0, 1297-303.
+
+\bibitem[Moestue \textit{et~al}., 2010]{Moestue2010}
+Moestue, SA., Borgan, E., Huuse, EM., Lindholm, EM., Sitter, B., ., Børresen-Dale, AL., Engebraaten, Olav., Mælandsmo, GM., Gribbestad, IS. (2010) Distinct choline metabolic profiles are associated with differences in gene expression for basal-like and luminal-like breast cancer xenograft models, {\it BMC Cancer}, {\bf 1}0, 433.
+
+\bibitem[Mulrane \textit{et~al}., 2013]{Mulrane2013}
+Mulrane, L., McGee, SF., Gallagher, WM., O'Connor, DP. (2013) miRNA dysregulation in breast cancer, {\it Cancer Research}, {\bf 73}(22), 6554-62.
+
+\bibitem[Nielsen \textit{et~al}., 2011]{Nielsen2011}
+Nielsen, Rasmus., Paul, Joshua., S., Albrechtsen, Anders., Song, Yun., S. (2011) {Genotype and SNP calling from next-generation sequencing data, {\it Nature Publishing Group}, {\bf 1}2, 443--451.
+
+\bibitem[Okayama \textit{et~al}., 2014]{Okayama2014}
+Okayama, S., Kopelovich, L., Balmus, G., Weiss, RS., Herbert, BS., Dannenberg, AJ., Subbaramaiah, K. (2014) p53 protein regulates Hsp90 ATPase activity and thereby Wnt signaling by modulating Aha1 expression, {\it The Journal of Biological Chemistry}, {\bf 89}(10), 6513-25.
+
+\bibitem[Ord \textit{et~al}., 2005]{Ord2005}
+Ord, JJ., Streeter, EH., Roberts, ISD., Cranston, D., Harris, AL. (2005) Comparison of hypoxia transcriptome in vitro with in vivo gene expression in human bladder cancer, {\it British Journal of Cancer}, {\bf 9}3, 346 – 354.
+
+\bibitem[Ouchida \textit{et~al}., 2012]{Ouchida2012}
+Ouchida, M., Kanzaki, H., Ito, S., Hanafusa, H., Jitsumori, Y., et., al.., . (2012) Novel Direct Targets of miR-19a Identified in Breast Cancer Cells by a Quantitative Proteomic Approach, {\it PLoS One}, {\bf 7}(8), e44095.
+
+\bibitem[Cook \textit{et~al}., 2004]{PU1}
+Cook, WD, McCaw, BJ, Herring, C., John, DL., Foote, SJ., Nutt, SL., Adams, JM. (2004) PU.1 is a suppressor of myeloid leukemia, inactivated in mice by gene deletion, {\it Blood}, {\bf 104}(12), 3437-3444.
+
+\bibitem[Pal \textit{et~al}., 2010]{Pal2010}
+Pal, D., Wu, D., Haruta, A., Matsumura, F., Wei, Q. (2010) Role of a novel coiled-coil domain-containing protein CCDC69 in regulating central spindle assembly, {\it Cell Cycle}, {\bf 9}(20), 4117-29.
+
+\bibitem[Pao \textit{et~al}., 2011]{Pao2011}
+Pao, W., Girad, N. (2011) New driver mutations in non-small-cell lung cancer, {\it Lancet Oncology}, {\bf 12}(2), 175-80.
+
+\bibitem[Papasotiriou \textit{et~al}., 2014]{Papasotiriou2014}
+Papasotiriou, I., ., Apostolou, P., Toloudi, M., Chatziioannou, M., Mimikakou, G., Kourtidou, E., Vlachou, I. (2014) TMX2: A potential biomarker or a predictive marker in breast cancer?, {\it Journal of Clinical Oncology}, {\bf 32}(suppl; abstr e22077), .
+
+\bibitem[Pearson \textit{et~al}., 2008]{Pearson2008}
+Pearson, TA., Manolio, TA. (2008) How to interpret a genome-wide association study, {\it The Journal of the American Medical Association}, {\bf 299}(11), 1335-1344.
+
+\bibitem[Piskol \textit{et~al}., 2013]{Piskol2013}
+Piskol, R., Ramaswami, G., Li, JB. (2013) Reliable identification of genomic variants from RNA-seq data, {\it The American Journal of Human Genetics}, {\bf 93}(4), 641-651.
+
+\bibitem[Quinlan \textit{et~al}., 2010]{Quinlan2010}
+Quinlan, AR., Hall, IM. (2010) BEDTools: a flexible suite of utilities for comparing genomic features, {\it Bioinformatics}, {\bf 26}(6), 841-842.
+
+\bibitem[Rajkumar \textit{et~al}., 2011]{Rajkumara2011}
+Rajkumar, T., Sabitha, K., Vijayalakshmi, N., Shirley, S., Bose, MV., Gopal, G., Selvaluxmy, G. (2011) Identification and validation of genes involved in cervical tumourigenesis, {\it BMC Cancer}, {\bf 1}1, 80.
+
+\bibitem[Ray \textit{et~al}., 2013]{Ray2013}
+Ray, D., Kazan, H., Cook, KB., Weirauch, MT., Najafabadi, HS., Li, X., Gueroussov, S., Albu, M., Zheng, H., Yang, A., Na, H., Irimia, M., Matzat, LH., Dale, RK., Smith, SA., Yarosh, CA., Kelly, SM., Nabet, B., Mecenas, D., Li, W., Laishram, RS., Qiao, M., Lipshitz, HD., Piano, F., Corbett, AH., Carstens, RP., Frey, BJ., Anderson, RA., Lynch, KW., Penalva, LO., Lei, EP., Fraser, AG., Blencowe, BJ., Morris, QD., Hughes, TR. (2013) A compendium of RNA-binding motifs for decoding gene regulation, {\it Nature}, {\bf 499}(7457), 172-7.
+
+\bibitem[Rebhan \textit{et~al}., 1997]{Rebhan1997}
+Rebhan, M., Chalifa-Caspi, V., Prilusky, J., Lancet, D. (1997) GeneCards: integrating information about genes, proteins and diseases, {\it Trends in Genetics}, {\bf 13}(163), .
+
+\bibitem[Shah \textit{et~al}., 2010]{Shah2010}
+Shah, N., Sukumar, S. (2010) The Hox genes and their roles in oncogenesis, {\it Nature Reviews Cancer}, {\bf 1}0, 361-371.
+
+\bibitem[Skeeles \textit{et~al}., 2013]{Skeeles2013}
+Skeeles, LE., Fleming, JL., Mahler, KL., Toland, AE. (2013) The Impact of 3'UTR Variants on Differential Expression of Candidate Cancer Susceptibility Genes, {\it PLoS One}, {\bf 8}(3), e58609.
+
+\bibitem[Song \textit{et~al}., 2012]{Song2012}
+Song, JS., Kim, YS., Kim, DK., Park, SI., Jang, SJ. (2012) Global histone modification pattern associated with recurrence and disease-free survival in non-small cell lung cancer patients, {\it Pathology International}, {\bf 6}2, 182–190.
+
+\bibitem[Bolger \textit{et~al}., 2014]{Trimmomatic2014}
+Bolger, AM., Lohse, M., Usadel., B. (2014) Trimmomatic: A flexible trimmer for Illumina Sequence Data, {\it Bioinformatics}, {\bf 30}(15), 2114-2120.
+
+\bibitem[Trygg \textit{et~al}., 2002]{Trygg2002}
+Trygg, Johan., Wold, Svante. (2002) {Orthogonal projections to latent structures (O-PLS), {\it Journal of Chemometrics}, {\bf 1}6, 119--128.
+
+\bibitem[McLaren \textit{et~al}., 2010]{VEP}
+McLaren, W., Pritchard, B., Rios, D., Chen, Y., Flicek, P., Cunningham, F.. (2010) Deriving the consequences of genomic variants with the Ensembl API and SNP Effect Predictor, {\it Bioinformatics}, {\bf 26}(16), 2069-2070.
+
+\bibitem[Van Dyke \textit{et~al}., 2009]{VanDyke2009}
+Van., Dyke, AL., Cote, ML., Wenzlaff, AS., Abrams, J., Land, S., Iyer, P., Schwartz, AG. (2009) Chromosome 5p Region SNPs Are Associated with Risk of NSCLC among Women, {\it Journal of Cancer Epidemiology}, {\bf Article ID 24215}1, .
+
+\bibitem[Vuong \textit{et~al}., 2014]{Vuong2014}
+Vuong, H., Cheng, F., Lin, C-C., Zhao, Z. (2014) Functional consequences of somatic mutations in cancer using protein pocket-based prioritization approach, {\it Genome Medicine}, {\bf 6}(10), .
+
+\bibitem[Wang \textit{et~al}., 2009]{Wang2009}
+Wang, H., Jin, G., Wang, H., Liu, G., Qian, J., Jin, L., Wei, Q., Shen, H., Huang, W., Lu, D. (2009) Genetic susceptibility of lung cancer associated with common variants in the 3' untranslated regions of the adenosine triphosphate-binding cassette B1 (ABCB1) and ABCC1 candidate transporter genes for carcinogen export, {\it Cancer}, {\bf 115}(3), 595-607.
+
+\bibitem[Wang \textit{et~al}., 2010]{Wang2010}
+Wang, K., Li, M., Hakonarson, H. (2010) ANNOVAR: functional annotation of genetic variants from high-throughput sequencing data, {\it Nucleic Acids Research}, {\bf 38, e16}4, .
+
+\bibitem[Wen \textit{et~al}., 2011]{Wen2011}
+Wen, J., Fu, J., Zhang, W., Guo, M. (2011) Genetic an epigenetic changes in lung carcinoma and their clinical implications, {\it Modern Pathology}, {\bf 24}(7), 932-43.
+
+\bibitem[Yamada \textit{et~al}., 2013]{Yamada2013}
+Yamada, T., Takeuchi, S., Fujita, N., Nakamura, A., Wang, W., Li, Q., Oda, M., Mitsudomi, T., Yatabe, Y., Sekido, Y., Yoshida, J., Higashiyama, M., Noguchi, M., Uehara, H., Nishioka, Y., Sone, S., Yano, S. (2013) Akt kinase-interacting protein1, a novel therapeutic target for lung cancer with EGFR-activating and gatekeeper mutations, {\it Oncogene}, {\bf 32}(37), 4427-35.
+
+\bibitem[Zhou \textit{et~al}., 2013]{Zhou2013}
+Zhou, X., Xie, W., Li, Q., Zhang, Y., Zhang, J., Zhao, X., Liu, J., Huang, G., Guan, XY. (2013) TIGAR Is Correlated with Maximal Standardized Uptake Value on FDG-PET and Survival in Non-Small Cell Lung Cancer, {\it PLoS One}, {\bf 8}(12):e80576, .
+
+\bibitem[Zienolddiny \textit{et~al}., 2011]{Zienolddiny2011}
+Zienolddiny, S., Skaug, V. (2011) Single nucleotide polymorphisms as susceptibility, prognostic, and therapeutic markers of nonsmall cell lung cancer, {\it Lung Cancer: Targets and Therapy}, {\bf 2012}(3), 1-14.
+
+\bibitem[Chang \textit{et~al}., 2012]{wANNOVAR}
+Chang, X., Wang, K. (2012) wANNOVAR: annotating genetic variants for personal genomes via the web, {\it Journal of Medical Genetics}, {\bf 49}(7), 433-6.
+

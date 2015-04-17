@@ -1,0 +1,2 @@
+Predictive Accurary  AUC[95% CI]
+  0.80   0.88000000

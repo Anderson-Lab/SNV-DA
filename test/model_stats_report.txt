@@ -1,0 +1,2 @@
+Prediction_Accuracy	 AUC[95% CI]	Group1_Sensitivity	Group2_Sensitivity
+0.8000	0.8300[0.5470-0.9688]	0.8000	0.8000
