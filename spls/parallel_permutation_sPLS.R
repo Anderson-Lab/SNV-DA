@@ -5,7 +5,7 @@ library(pROC)
 args <- commandArgs(trailingOnly = TRUE)
 name = args[4]
 ##args = c("none", "test2", 5, 15, 5)
-cl<-makeCluster(8)
+cl<-makeCluster(12)
 registerDoParallel(cl)
 
 allSNPs <- data.matrix(read.csv(args[1], header=F, stringsAsFactors=F,sep=","))
@@ -31,13 +31,14 @@ print(length(typed))
 snvs = rownames(allSNPs)
 num_class_1 = 11
 
-
+compare_auc = as.numeric(args[7])
 
 optM = as.numeric(args[5])
 numIter = as.numeric(args[6])
 AUCs = c()
 run = 0
-ls <- foreach (icount(numIter), .packages=c('mixOmics','pROC')) %dopar% {
+ls <- foreach (iter=1:numIter, .packages=c('mixOmics','pROC')) %dopar% {
+ write(iter, file=paste(name, ".log", sep=""), append=T)
 ####Final CV using the average of the bestM's
 correct <- 0
 missed <- 0
@@ -124,7 +125,9 @@ for (skip1 in first_class){
 auc_ci = as.numeric(ci.auc(roc(controls=class1, cases=class2)))
 auc_ci[2]
 }
-print(ls)
+aucs = unlist(ls)
 write(unlist(ls), ncol=1, file=paste(name, "_permutation.txt", sep=""), sep="\t")
-
+p_val = length(which(aucs >= compare_auc))/length(aucs)
+print(p_val)
+write(p_val, ncol=1, file=paste(name,"_p_val.txt", sep=""),sep="\t")
 stopCluster(cl)

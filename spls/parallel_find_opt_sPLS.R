@@ -110,7 +110,7 @@ bestM <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %do
     
     sub.aucs = c(sub.aucs , auc_val)       
 }
-subM = testAmounts[which(auc_val == max(auc_val))]
+subM = testAmounts[which(sub.aucs == max(sub.aucs))]
 subM
 }
 bestM = unlist(bestM)
