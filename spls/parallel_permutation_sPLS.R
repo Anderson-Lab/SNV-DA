@@ -37,24 +37,47 @@ optM = as.numeric(args[5])
 numIter = as.numeric(args[6])
 AUCs = c()
 run = 0
-#ls <- foreach (iter=1:numIter, .packages=c('mixOmics','pROC')) %dopar% {
-for(iter in 1:numIter){
+ls <- foreach (iter=1:numIter, .packages=c('mixOmics','pROC')) %dopar% {
+#for(iter in 1:numIter){
  write(iter, file=paste(name, ".log", sep=""), append=T)
 ####Final CV using the average of the bestM's
 correct <- 0
 missed <- 0
 classes <- c(0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1)
-indices <- sample(c(seq(1,20,1)))
-first_class <- indices[1:num_class_1]
-second_class <- indices[num_class_1+1:length(indices)]
-second_class = second_class[!is.na(second_class)]
+allSNPs2 = allSNPs[, sample(c(seq(1,20,1)))]
+###Trying to filter out SNVs that have do not have at least 3 nonzero values in either group in vector format
+###Couldn't get to work, move to a for loop instead
+#class1 = allSNPs[,1:num_class_1]
+#class1 = class1[which(rowSums(class1 > 0) > 2),]
+#class2 = allSNPs[,(num_class_1 + 1):ncol(allSNPs)]
+#class2 = class2[which(rowSums(class2 > 0) > 2),]
+#new_allSNPs = allSNPs[which(rownames(allSNPs) %in% rownames(class1) | rownames(allSNPs) %in% rownames(class2)),] 
 
-new_allSNPs = allSNPs[which(length(intersect(which(allSNPs > 0), first_class)) > 2 | length(intersect(which(allSNPs > 0),second_class)) > 2),]
 
-print(indices)
-print(head(new_allSNPs))
+suffSNVs = c()
+for(i in 1:nrow(allSNPs2)){
+	numClass1 = 0
+	numClass2 = 0
+	for(x in 1:num_class_1){
+		if (!is.na(allSNPs2[i,x])){
+		if (as.numeric(allSNPs2[i,x]) > 0){
+			numClass1 = numClass1 + 1
+		}
+		}
+		}
+	for(x in (num_class_1+1):ncol(allSNPs2)){
+		if (!is.na(allSNPs2[i,x])){
+		if (as.numeric(allSNPs2[i,x]) > 0){
+                        numClass2 = numClass2 + 1
+                }
+                }
+		}
+	if (numClass1 > 2 | numClass2 > 2){
+		suffSNVs = c(suffSNVs, i)
+	}
+}
 
-
+new_allSNPs = allSNPs2[suffSNVs,]
 
 run = run + 1
 iter = 0
@@ -64,8 +87,8 @@ class1 <- c()
 class2 <- c()
 
 
-for (skip1 in first_class){
-  for (skip2 in second_class){
+for (skip1 in 1:num_class_1){
+  for (skip2 in (num_class_1+1):ncol(allSNPs2)){
     
     test.data = na.omit(new_allSNPs[,c(skip1, skip2)])
     keep = rownames(test.data)
