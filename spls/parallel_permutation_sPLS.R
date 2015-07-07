@@ -37,7 +37,8 @@ optM = as.numeric(args[5])
 numIter = as.numeric(args[6])
 AUCs = c()
 run = 0
-ls <- foreach (iter=1:numIter, .packages=c('mixOmics','pROC')) %dopar% {
+#ls <- foreach (iter=1:numIter, .packages=c('mixOmics','pROC')) %dopar% {
+for(iter in 1:numIter){
  write(iter, file=paste(name, ".log", sep=""), append=T)
 ####Final CV using the average of the bestM's
 correct <- 0
@@ -47,20 +48,28 @@ indices <- sample(c(seq(1,20,1)))
 first_class <- indices[1:num_class_1]
 second_class <- indices[num_class_1+1:length(indices)]
 second_class = second_class[!is.na(second_class)]
+
+new_allSNPs = allSNPs[which(length(intersect(which(allSNPs > 0), first_class)) > 2 | length(intersect(which(allSNPs > 0),second_class)) > 2),]
+
+print(indices)
+print(head(new_allSNPs))
+
+
+
 run = run + 1
 iter = 0
 resp <- c()
 pred <- c()
 class1 <- c()
 class2 <- c()
-print(first_class)
-print(second_class)
+
+
 for (skip1 in first_class){
   for (skip2 in second_class){
     
-    test.data = na.omit(allSNPs[,c(skip1, skip2)])
+    test.data = na.omit(new_allSNPs[,c(skip1, skip2)])
     keep = rownames(test.data)
-    training.data = allSNPs[,c(-skip1,-skip2)][which(rownames(allSNPs) %in% keep & rownames(allSNPs) %in% typed ),]
+    training.data = new_allSNPs[,c(-skip1,-skip2)][which(rownames(new_allSNPs) %in% keep & rownames(new_allSNPs) %in% typed ),]
     head(training.data)
     splsda.model <- splsda(t(training.data), factor(t(classes)), ncomp=1, keepX=optM)
     training.data = training.data[which(rownames(training.data) %in% colnames(splsda.model$X)),]

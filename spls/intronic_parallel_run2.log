@@ -1,0 +1,34 @@
+Loading required package: iterators
+Loading required package: parallel
+Loading required package: MASS
+Loading required package: lattice
+Warning messages:
+1: In rgl.init(initValue, onlyNULL) : RGL: unable to open X11 display
+2: In fun(libname, pkgname) : error in rgl_init
+Type 'citation("pROC")' for a citation.
+
+Attaching package: ‘pROC’
+
+The following objects are masked from ‘package:stats’:
+
+    cov, smooth, var
+
+There were 20 warnings (use warnings() to see them)
+[1] 99
+ [1]  10 110  30 140  30 210  20  70 200  10 200  10  90 220  10 220  40  10  10
+[20]  20 220  30  30  10  30  10  20  10  40  10  10  10  10  50  60  20  10  20
+[39]  60  20  90  10  20  50  20  10  30  20 120  50  10  40 160  30  20  20  60
+[58]  40 210 100  40  40 210 220  10  20 150  30 220  50  10  50  20  70  30  10
+[77] 200  20  50  10  80  10  30 190 190  60 200  20  70  40  10  30  30 110  30
+[96] 120  20  10  20
+There were 50 or more warnings (use warnings() to see the first 50)
+[1] "Optimal M = "
+[1] 20
+[1] "AUC CI = "
+[1] 0.7398140 0.8014488 0.8630837
+[1] 0.7222222
+Warning message:
+In spls(X, ind.mat, ncomp = ncomp, mode = "regression", keepX = keepX,  :
+  Zero- or near-zero variance predictors.
+Reset predictors matrix to not near-zero variance predictors.
+See $nzv for problematic predictors.
