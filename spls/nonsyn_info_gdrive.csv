@@ -1,0 +1,38 @@
+new?,Gene,coefficient,Position,Mutation,# in DF,# in R,Freq. in DF (no na),Freq. in R (no na),Avg. allele fraction,Avg allele fraction,dbSNP ID,Cancer?,Description,ref
+,MTRR,0.1643949373,chr5:7878179,C->T,10,1,1,0.1111111111,0.6849,0.867,rs1802059,Yes,Variants in location are associated with NSCLC risk. ,"J Cancer Epidemiol. 2009;2009:242151. doi: 10.1155/2009/242151. Epub 2010 Feb 18.
+Chromosome 5p Region SNPs Are Associated with Risk of NSCLC among Women.
+Van Dyke AL1, Cote ML, Wenzlaff AS, Abrams J, Land S, Iyer P, Schwartz AG."
+x,TACC3,0.1335,chr4:1732978,G->A,3,8,0.3,0.8888888889,0.4893333333,0.73375,rs17680881,YES,higher expression of TACC3 associated with poor prognosis in NSCLC,"Pathol Int. 2006 Sep;56(9):503-9.
+Expression of transforming acidic coiled-coil containing protein 3 is a novel independent prognostic marker in non-small cell lung cancer.
+Jung CK1, Jung JH, Park GS, Lee A, Kang CS, Lee KY."
+x,TACC3,0.1297,chr4:1729988,G->A,3,8,0.3333333333,0.8888888889,0.4306666667,0.775625,rs1063743,YES,higher expression of TACC3 associated with poor prognosis in NSCLC,"Pathol Int. 2006 Sep;56(9):503-9.
+Expression of transforming acidic coiled-coil containing protein 3 is a novel independent prognostic marker in non-small cell lung cancer.
+Jung CK1, Jung JH, Park GS, Lee A, Kang CS, Lee KY."
+,EXOSC7,0.1254,chr3:45052775,G->C,10,4,0.9090909091,0.4444444444,0.6802,0.3815,rs6794,yes,codes for exosome component; down regulated in papillary thyroid cancer,"Differential expression of a set of genes in follicular and classic variants of papillary thyroid carcinoma. Igci YZ1, Arslan A, Akarsu E, Erkilic S, Igci M, Oztuzcu S, Cengiz B, Gogebakan B, Cakmak EA, Demiryurek AT. Igci YZ1, Arslan A, Akarsu E, Erkilic S, Igci M, Oztuzcu S, Cengiz B, Gogebakan B, Cakmak EA, Demiryurek AT."
+,VPS8,0.1213,chr3:184766301,T->C,9,1,0.8181818182,0.1111111111,0.5307777778,0.5,rs3821750,no,vacular protein sorting 8 homolog; ,genecards
+x,SACM1L,0.1194,chr3:45779136,A->T,10,5,0.9090909091,0.5555555556,0.8988,0.577,rs1468542,no,phosphatidylinositol-4-phosphate phosphatase activit,genecards
+x,ADD1,0.1144,chr4:2906707,G->T,2,8,0.1818181818,0.8888888889,0.5745,0.530125,rs4961,somewhat,specific variant is associated with hyper-tension; regulated PPARgamma which is involved in cancer,"Cell Biochem Biophys. 2013 Jan;65(1):13-9. doi: 10.1007/s12013-012-9398-2.
+Computational study of ADD1 gene polymorphism associated with hypertension.
+Kundu A1, Anand A; Proc Natl Acad Sci U S A. 1998 Apr 14;95(8):4333-7.
+ADD1/SREBP1 activates PPARgamma through the production of endogenous ligand.
+Kim JB1, Wright HM, Wright M, Spiegelman BM."
+x,PJA2,0.1137,chr5:108672946,C->T,5,8,0.4545454545,0.8888888889,0.3908,0.63425,rs246105,yes,presence of FER-PJA2 chimeras are associated with poor post-operative NSCLC survival; significantly over-expressed in thryoid cancer,"Cancer Sci. 2013 Nov;104(11):1447-54. doi: 10.1111/cas.12250. Epub 2013 Sep 5.
+Detection of novel paraja ring finger 2-fer tyrosine kinase mRNA chimeras is associated with poor postoperative prognosis in non-small cell lung cancer.
+Kawakami M1, Ishikawa R, Amano Y, Sunohara M, Watanabe K, Ohishi N, Yatomi Y, Nakajima J, Fukayama M, Nagase T, Takai D; J Clin Endocrinol Metab. 2012 Nov;97(11):4253-9. doi: 10.1210/jc.2012-2360. Epub 2012 Sep 4.
+Expression of the ring ligase PRAJA2 in thyroid cancer.
+Cantara S1, D'Angeli F, Toti P, Lignitto L, Castagna MG, Capuano S, Prabhakar BS, Feliciello A, Pacini F."
+x,TACC3,0.1137,chr4:1729953,G->A,4,8,0.4444444444,0.8888888889,0.4465,0.776375,rs17132047,YES,higher expression of TACC3 associated with poor prognosis in NSCLC,"Pathol Int. 2006 Sep;56(9):503-9.
+Expression of transforming acidic coiled-coil containing protein 3 is a novel independent prognostic marker in non-small cell lung cancer.
+Jung CK1, Jung JH, Park GS, Lee A, Kang CS, Lee KY."
+x,PEMT,0.1128,chr17:17425631,C->T,4,8,0.3636363636,0.8888888889,0.5485,0.800875,rs897453,yes,Increased expression of PEMT in nsclc patients preditct shorter survival,"Oncol Lett. 2014 Jun;7(6):2175-2179. Epub 2014 Apr 4.
+Increased phosphatidylethanolamine N-methyltransferase gene expression in non-small-cell lung cancer tissue predicts shorter patient survival.
+Zinrajh D1, Hörl G2, Jürgens G2, Marc J1, Sok M3, Cerne D1."
+,PDLIM1,0.1121,chr10:97023630,T->C,8,1,0.7272727273,0.1111111111,0.677875,0.434,rs2296961,Yes,"aka CLIM1, regulates estrogen receptor; upregulated in breast cancer","Cancer Res. Jan 1, 2009; 69(1): 128–136. Regulation of Estrogen-Dependent Transcription by the LIM Cofactors CLIM and RLIM in Breast Cancer. Steven A. Johnsen,1,4,9,12,# Cenap Güngör,2,4,#§ Tanja Prenzel,1 Sabine Riethdorf,5 Lutz Riethdorf,8 Naoko Taniguchi-Ishigaki,2 Thomas Rau,6 Baris Tursun,2,& J. David Furlow,10 Guido Sauter,7 Martin Scheffner,11 Klaus Pantel,5 Frank Gannon,9,† and Ingolf Bach2,3,4,12"
+x,HCLS1,0.1115,chr3:121351338,C->T,4,7,0.3636363636,0.7777777778,0.401,0.7487142857,rs2070180,yes,over-expression associated with poor survival in leukemia,
+x,CHMP4A,0.1084,chr14:24679877,C->T,9,9,0.8181818182,1,0.5627777778,0.8861111111,rs2295322,yes,over-expression associated with recurrent ovarian cancer,"Gynecol Oncol. 2013 Mar;128(3):512-7. doi: 10.1016/j.ygyno.2012.11.018. Epub 2012 Nov 17.
+Validated gene targets associated with curatively treated advanced serous ovarian carcinoma.
+Barlin JN1, Jelinic P, Olvera N, Bogomolniy F, Bisogna M, Dao F, Barakat RR, Chi DS, Levine DA."
+,CEACAM6,0.106,chr19:42265889,G->T,11,3,1,0.4285714286,0.787,0.598,rs11548735,Yes,"carcinoembryonic antigen-related cell adhesion molecule 6, tumor marker in cancer","Expression of CEACAM6 in resectable colorectal cancer: a factor of independent prognostic significance. Jantscheff, P., Terracciano, L., Lowy, A., Glatz-Krieger, K., Grunert, F., Micheel, B., Brümmer, J., Laffer, U., Metzger, U., Herrmann, R., Rochlitz, C. J. Clin. Oncol. (2003)"
+x,PLA2G7,0.1057,chr6:46684222,C->T,7,0,0.875,0,0.637,0,rs1805017,yes,associated with agressive prostate cancer; specific variant association with protection from coronary heart disease,"Vainio P, Lehtinen L, Mirtti T, Hilvo M, Seppanen-Laakso T, Virtanen J, et al. Phospholipase PLA2G7, associated with aggressive prostate cancer, promotes prostate cancer cell migration and invasion and is inhibited by statins. Oncotarget. 2011;2:1176-90.;  Exp Ther Med. 2013 Mar;5(3):742-750. Epub 2013 Jan 21.
+An association study between genetic polymorphisms related to lipoprotein-associated phospholipase A(2) and coronary heart disease.
+Xu L1, Zhou J, Huang S, Huang Y, LE Y, Jiang D, Wang F, Yang X, Xu W, Huang X, Dong C, Zhang L, Ye M, Lian J, Duan S."
