@@ -25,7 +25,7 @@ if (types[1] != "none"){
 }else{
 	typed = rownames(allSNPs)
 }
-
+allSNPs = allSNPs[which(rownames(allSNPs) %in% typed),] 
 print("Number of SNVs")
 print(length(typed))
 snvs = rownames(allSNPs)
@@ -92,7 +92,7 @@ for (skip1 in 1:num_class_1){
     
     test.data = na.omit(new_allSNPs[,c(skip1, skip2)])
     keep = rownames(test.data)
-    training.data = new_allSNPs[,c(-skip1,-skip2)][which(rownames(new_allSNPs) %in% keep & rownames(new_allSNPs) %in% typed ),]
+    training.data = new_allSNPs[,c(-skip1,-skip2)][which(rownames(new_allSNPs) %in% keep),]
     head(training.data)
     splsda.model <- splsda(t(training.data), factor(t(classes)), ncomp=1, keepX=optM)
     training.data = training.data[which(rownames(training.data) %in% colnames(splsda.model$X)),]
