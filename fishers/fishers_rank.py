@@ -1,7 +1,7 @@
 import csv
 import math
 
-input = csv.reader(open("SNVM.unfiltered.csv","r"))
+input = csv.reader(open("SNVM.unsup_total.csv","r"))
 input.next()
 indy = 0
 loci = {}
@@ -41,7 +41,6 @@ for key in loci.keys():
 	for i in range(len(snvs)):
 		snv = snvs[i]
 		bp = snv[0][3]
-		print bp
 		if bp == "A":
                 	aindex = 0
         	elif bp == "C":
@@ -74,7 +73,7 @@ for key in loci.keys():
 	n = dfs + rs
 	p = float(math.factorial(As) * math.factorial(cs) * math.factorial(gs) * math.factorial(ts) * math.factorial(dfs) * math.factorial(rs)) 
 	denom = 1
-	for r in range(3):
+	for r in range(4):
 		for c in range(2):
 			denom = denom * float(math.factorial(tab[c][r]))
 	denom = denom * math.factorial(n)
