@@ -4,7 +4,7 @@ suppressPackageStartupMessages(library(doParallel))
 suppressPackageStartupMessages(library(mixOmics))
 suppressPackageStartupMessages(library(pROC))
 suppressPackageStartupMessages(library(gplots))
-
+suppressPackageStartupMessages(library(ggplot2))
 option_list <- list(
 
 
@@ -416,22 +416,29 @@ if(args$findOptimalK){
 	}
 	
 	
-	bestK = unlist(bestK)
+	bestK = c(as.numeric(unlist(bestK)))
 	
 	d = density(as.numeric(bestK))
 	optK = round(d$x[which.max(d$y)])
 	write(t(c(bestK)), ncol=1, file=paste(name, "_iteration_optimals.txt", sep=""), sep="\t")
   if(args$produceFigures){
   	pdf(paste(name,"_density.pdf",sep=""), 7,3)
-  	dataset <- data.frame(X = bestK)
-  	plot = ggplot(dataset, aes(x = X)) + geom_histogram(aes(y = ..density..), colour='black', fill='blue',binwidth=35) + geom_density(color='red', size=1)
-  	plot = plot + geom_vline(xintercept=c(optM), linetype="dashed", size=1)
+  	dataset <- data.frame(X = as.numeric(bestK))
+    if(is.null(args$everyK)){
+    	binwidth=args$everyK
+    	}else{
+    		binwidth=5
+    	}
+  	
+  	plot = ggplot(dataset, aes(x = X)) + geom_histogram(aes(y = ..density..), colour='black', fill='blue',binwidth=binwidth) + geom_density(color='red', size=1)
+  	plot = plot + geom_vline(xintercept=c(optK), linetype="dashed", size=1)
   	plot = plot + xlab("Value of K Tested")
   	plot = plot + ylab("Density")
-  	plot = plot + scale_y_continuous(expand = c(0,0)) + scale_x_continuous(limits = c(0,max(unlist(input))),expand = c(0,0))
+  	plot = plot + scale_y_continuous(expand = c(0,0)) + scale_x_continuous(limits = c(0,max(as.numeric(bestK))),expand = c(0,0))
   	plot = plot + theme_bw()
   	plot = plot + theme(axis.text=element_text(size=8), axis.title=element_text(size=10,face="bold"))
 		plot
+		print(plot)
   	dev.off()	
   	}
 	
@@ -544,14 +551,11 @@ if(args$evaluatePerformance){
 		class2 = c(class2, unrounded.predictions.2)
 	}	
 	
-	#print(performStats)
-	print(class1)
-	print(class2)
+
 	auc_ci = as.numeric(ci.auc(roc(controls=class1, cases=class2)))
 	write(paste("AUC CI =  ", auc_ci, sep=""), file=paste(name, ".log", sep=""), append=T)
 	
 	accuracy =  correct / (correct + missed)
-	print(accuracy)	
 	write(paste("Accuracy: ", accuracy, sep=""), file=paste(name, ".log", sep=""), append=T)	
 	
 	stats = cbind.data.frame(c("Optimal K", "Predictive Accuracy", "Lower 95% CI","AUC","Upper 95% CI",paste(args$nameClass1, " Sensitivity", sep=""), paste(args$nameClass2, " Sensitivity", sep="")), c(optK, accuracy, auc_ci, (nrow(skips)-OneWrong)/nrow(skips), (nrow(skips)-TwoWrong)/nrow(skips))) 
@@ -560,10 +564,10 @@ if(args$evaluatePerformance){
 	##Determine most relevant biomarkers with optimal M
 	allData = allSNPs[which(rownames(allSNPs) %in% typed ),]
 	total_classes = classes
-	splsda.model <- splsda(t(allData), factor(t(total_classes)), ncomp=1, keepX=optk)
+	splsda.model <- splsda(t(allData), factor(t(total_classes)), ncomp=1, keepX=optK)
 	SNVs = splsda.model$loadings$X
 	all_snv_names = rownames(SNVs)
-	snvs = matrix(, nrow=optM, ncol=3)
+	snvs = matrix(, nrow=optK, ncol=3)
 	index = 1
 	for(i in 1:length(SNVs)){
 		if (abs(SNVs[i]) > 0){
@@ -573,58 +577,55 @@ if(args$evaluatePerformance){
 	}
 	snvs[,3] = as.character(names[,2][which(names[,1] %in% snvs[,1] )])
 	
-	topSNVs = t(snvs[order(as.numeric(snvs[,2]), decreasing = T),])
-	write(topSNVs, ncol=3, file=paste(name, "_top_SNVs.txt", sep=""), sep="\t")
+	topSNVs = snvs[order(as.numeric(snvs[,2]), decreasing = T),]
+	write(t(topSNVs), ncol=3, file=paste(name, "_top_SNVs.txt", sep=""), sep="\t")
 	
 	
 	if(args$produceFigures){
 	  snv_names = c()
 	  afs = c()
 	  classOutcome = c()
-	  for(e in 1:15){
-	  	
-	  	
+	  numTop = min(optK, 15)
+	  for(e in 1:numTop){
 	  	for(s in 1:ncol(allSNPs)){
-	  	
-	  		if(classes[s] == 1){
-	  			classOutcome = c(classOutcome, nameClass1)	
-	  			
-	  		}else{
-	  			classOutcome = c(classOutcome, nameClass2)
-	  		}
+	  		
 	  		snv_name = topSNVs[e,1]
+	  		af = allSNPs[snv_name,s]
+	  		if(classes[s] == 1){
+	  			classOutcome = c(classOutcome, args$nameClass1)	
+	  		}else{
+	  			classOutcome = c(classOutcome, args$nameClass2)
+	  		}
 	  		snv_names = c(snv_names, snv_name) 
-	  		afs = c(afs, allSNPs[snv_name,s])
+	  		afs = c(afs, af)
+	  		
 	  	}
-	  	
 	  }
 		
-		
 		df = data.frame(snp = factor(snv_names, levels=unique(snv_names)), af = afs, Outcome=classOutcome)
-		
+		df = na.omit(df)
 		pdf(paste(name,"_af_boxplot.pdf",sep=""), 7,3)
-		plot4 = ggplot(df, aes(x=Outcome,y=af)) + geom_boxplot( frame.plot=FALSE,axes=FALSE,outlier.size=0) + facet_grid(. ~ snp) + facet_wrap( ~ snp, ncol=8)
+		plot4 = ggplot(df, aes(x=Outcome,y=af)) + geom_boxplot( frame.plot=FALSE,axes=FALSE,outlier.size=0) + facet_grid(. ~ snp) + facet_wrap( ~ snp, ncol=min(ceiling(numTop/2), 8))
 		plot4 = plot4 +  geom_point(data=subset(df,af>0),size=1.25, aes(colour=Outcome),position = position_jitter(width = 0.1)) + scale_color_brewer(palette="Set1")
-		plot4 = plot4 + theme_bw(base_size=10.5) 
+		plot4 = plot4 + theme_bw(base_size=5.5) 
 		plot4 = plot4 + scale_y_continuous(breaks=c(0,.5,1))
 		plot4 = plot4 + ylab("Allele Fraction")
-		plot4 = plot4 + xlab(NULL) + ggtitle(paste("Top ", name, " Nonsynonymous Exonic SNVs",sep=""))
+		plot4 = plot4 + xlab(NULL) + ggtitle(paste("Top ", name, " SNVs",sep=""))
 		plot4 = plot4 + theme(axis.title.x=element_blank(),
 													axis.text.x=element_blank(),
 													axis.ticks.x=element_blank(), legend.position="bottom")
 		plot4
+		print(plot4)
 		dev.off()
 	
-		pdf(paste(name,"_heatmap.pdf", sep=""), 7,5)
-		data = allSNPs[which(rownames(allSNPs) %in% topSNVs[1:15,]),]
-		SNVs = rownames(allSNPs)
+		pdf(paste(name,"_heatmap.pdf", sep=""), 8,5)
+		data = allSNPs[which(rownames(allSNPs) %in% topSNVs[1:numTop,]),]
+		SNVs = rownames(data)
 		samps = colnames(allSNPs)
-		colnames(data) = samps
-		rownames(data) = t(SNVs)
 		data = matrix(as.numeric(unlist(data)), nrow=nrow(data))
 		colnames(data) = samps
 		rownames(data) = t(SNVs)
-		heatmap.2(data, key.title="NA", key.xlab="Allele Fraction",density.info='none',na.color='black', col = colorpanel(100,"white","blue"),margins=c(4.2,10.4),trace='none')
+		heatmap.2(data, key.title="NA", key.xlab="Allele Fraction",density.info='none',na.color='black', col = colorpanel(100,"white","blue"),margins=c(4.2,15),trace='none')
 		dev.off()
 		}
 }
@@ -650,7 +651,7 @@ if(args$permutationTests){
 	run = 0
 	ls <- foreach (iter=1:numIter, .packages=c('mixOmics','pROC')) %dopar% {
 		#for(iter in 1:numIter){
-		write(paste("Iteration: ",iter, sep=""), file=paste(name, ".log", sep=""), append=T)
+		write(paste("Permutation iteration: ",iter, sep=""), file=paste(name, ".log", sep=""), append=T)
 		
 		correct <- 0
 		missed <- 0
@@ -748,7 +749,7 @@ if(args$permutationTests){
 	}
 
 aucs = unlist(ls)
-write(unlist(ls), ncol=1, file=paste(name, "_permutation.txt", sep=""), sep="\t")
+write(unlist(ls), ncol=1, file=paste(name, "_permutation_AUCs.txt", sep=""), sep="\t")
 p_val = length(which(aucs >= compare_auc))/length(aucs)
 write(paste("Perm p-value: ",p_val, sep=""), file=paste(name, ".log", sep=""), append=T)
 write(p_val, ncol=1, file=paste(name,"_p_val.txt", sep=""),sep="\t")
