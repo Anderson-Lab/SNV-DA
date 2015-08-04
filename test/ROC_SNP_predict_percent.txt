@@ -1,2 +1,0 @@
-PredictPercent
-0.7
