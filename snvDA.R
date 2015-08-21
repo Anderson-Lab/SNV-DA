@@ -5,82 +5,84 @@ suppressPackageStartupMessages(library(mixOmics))
 suppressPackageStartupMessages(library(pROC))
 suppressPackageStartupMessages(library(gplots))
 suppressPackageStartupMessages(library(ggplot2))
+
+help_text = "\nSNV-DA is used to create and evaluate sPLS-DA models to identify single nucleotide variations (SNVs) that accurately classify phenotype. The steps of the pipeline include:\n1) Finding optimal value of number of features to be selected in the model (K)\n2) Evaluating the model using cross-validations and optimal value of K\n3) Find and rank the K features that are correlated with predictive accuracy\n4) Permutation tests to determine if model is discriminate towards the true grouping of labels.\n\n
+The script has several parameters that allows the user to design their own analysis:\n1) The number of non-zero values by which to filter the matrix\n2) The number of NA values allowed for each SNV\n3) The type of SNV to include in the model\n4) The range and/or values of K tested.\n4) Cross-validation design (number of samples to take out from each group, the stratification of test samples [force test samples to be pulled equally from each group], and the number of cross-validations).\n\nHappy hunting!"  
 option_list <- list(
+make_option(c("-O", "--findOptimalK"), action="store_true", default=F,
+								 help="If flagged, SNV-DA will run nest cross-validations to determine optimal K."),
 
+make_option(c("-J", "--evaluatePerformance"), action="store_true", default=F,
+								 help="If flagged, SNV-DA will evaluate performance of model the value of K found from running --findOptimalK or user supplied --optimalK."),
 
- make_option(c("-M","--matrix"),type="character", default=NULL,
- help = "SNVM input (csv)"),
+make_option(c("-P", "--permutationTests"), action="store_true", default=F,
+								 help="If flagged, SNV-DA will run permutation tests by randomly permuting sample classes then running cross-validations. Tests are run --permIter number of times. Performances are then compared to the value of AUC found by --evaluatePerformance of user supplied --AreaUnderCurve."),
 
- make_option(c("-Z", "--numNonZeros"), type="integer", default=3,
- help="Limit SNVs to those that have at least X number of samples with allele fractions greater than zero (default = 3). Decreases runtime. Suggested value is a 1/3 the number of samples in the smaller group."),
+make_option(c("-M","--matrix"),type="character", default=NULL,
+								 help = "SNVM input (csv)"),
 
- make_option(c("-F","--nameClass1"),type="character", default="Class_1",
- 						help = "Name of class 1 (default = Class_1)."),
- 
- make_option(c("-H","--nameClass2"),type="character", default="Class 2",
- 						help = "Name of class 2 (default = Class_2)."),
- 
- make_option(c("-D","--sizeClass1"),type="integer", default=NULL,
- help = "The number of samples of class 1. (Used to find the number of samples of both classes)."),
+make_option(c("-D","--sizeClass1"),type="integer", default=NULL,
+								 help = "The number of samples of class 1. (Used to find the number of samples of both classes)."),
 
- make_option(c("-G", "--include"), type="character", default=NULL,
- help="SNVs with this substring are included, e.g. \"exonic\" for nonsynonymous and synonymous exonic SNVs"),
+make_option(c("-L", "--minK"), type="integer", default=NULL,
+								 help="The minimum value of K tested."),
 
- make_option(c("-X", "--exclude"), type="character", default=NULL,
- help="SNVs with this substring are excluded, e.g. ncRNA to remove intronic_ncRNA"),
+make_option(c("-B", "--maxK"), type="integer",default=NULL,
+								 help="The maximum value of K tested."),
 
- make_option(c("-A","--name"),type="character", default="SNV-DA_run",
- help = "One word name of the analysis used in output file names and figures."),
+make_option(c("-E", "--everyKth"), type="integer",default=NULL,
+								 help="Specifies every Nth K tested.\nOr use:"),
 
- make_option(c("-L", "--minK"), type="integer", default=NULL,
- help="The minimum value of K tested."),
+make_option(c("-R", "--range"), type="character",default=NULL,
+								 help="A comma separated list of K's to be added to the Ks tested, e.g. 5,10,15,20,25,50,75,100,250,300."),
 
- make_option(c("-B", "--maxK"), type="integer",default=NULL,
- help="The maximum value of K tested."),
+make_option(c("-Z", "--numNonZeros"), type="integer", default=3,
+								 help="Limit SNVs to those that have at least X number of samples with allele fractions greater than zero (default = 3). Decreases runtime. Suggested value is a 1/3 the number of samples in the smaller group."),
 
- make_option(c("-E", "--everyKth"), type="integer",default=NULL,
- help="Specifies every Nth K tested."),
+make_option(c("-N", "--numNAs"), type="integer", default=NULL,
+								 help="Limit SNVs to those that have at most X amount of samples with 'NA' values (default=0)."),
 
- make_option(c("-R", "--range"), type="character",default=NULL,
- help="A comma seperated list of K's to be added to the Ks tested, e.g. 5,10,15,20,25,50,75,100,250,300."),
+make_option(c("-G", "--include"), type="character", default=NULL,
+								 help="SNVs with this substring are included, e.g. \"exonic\" for nonsynonymous and synonymous exonic SNVs"),
 
- make_option(c("-T", "--threads"), type="integer", default=1,
- help="Number of threads for cross-validations (default = 1)."),
- 
- make_option(c("-r", "--numCV"), type="integer", default=NULL,
- help="Number of cross-validations. If flagged, SNV-DA will run X number of random cross-validations without replacement."),
+make_option(c("-X", "--exclude"), type="character", default=NULL,
+								 help="SNVs with this substring are excluded, e.g. ncRNA to remove intronic_ncRNA"),
 
- make_option(c("-Q", "--numOut"), type="integer", default=1,
- help="Number of samples removed from each group during cross-validation. If --unstratified is flagged, it is the number of total samples removed during each iteration of cross-validations."),
+make_option(c("-r", "--numCV"), type="integer", default=NULL,
+								 help="Number of cross-validations. If flagged, SNV-DA will run X number of random cross-validations without replacement."),
 
-  make_option(c("-U", "--unstratified"), action="store_true", default=F,
- help="Test samples during cross-validations will not be stratified by group. That is test samples will be from a combination of all samples."),
+make_option(c("-Q", "--numOut"), type="integer", default=1,
+								 help="Number of samples removed from each group during cross-validation. If --unstratified is flagged, it is the number of total samples removed during each iteration of cross-validations."),
 
- make_option(c("-O", "--findOptimalK"), action="store_true", default=F,
- help="If flagged, SNV-DA will run nest cross-validations to determine optimal K."),
+make_option(c("-U", "--unstratified"), action="store_true", default=F,
+								 help="Test samples during cross-validations will not be stratified by group. That is test samples will be from a combination of all samples."),
 
-  make_option(c("-J", "--evaluatePerformance"), action="store_true", default=F,
- help="If flagged, SNV-DA will evaluate performance of model the value of K found from running --findOptimalK or user supplied --optimalK."),
+make_option(c("-A","--name"),type="character", default="SNV-DA_run",
+						help = "One word name of the analysis used in output file names and figures."),
 
- make_option(c("-K", "--optimalK"), type="integer", default=500,
- help="Used when --evaluatePerformance or --permuationTests is flagged. Specifies the value of K used for cross-validation (default = 500)."),
+make_option(c("-F","--nameClass1"),type="character", default="Class_1",
+						help = "Name of class 1 (default = Class_1)."),
 
- make_option(c("-P", "--permutationTests"), action="store_true", default=F,
- help="If flagged, SNV-DA will run permutation tests by randomly permuting sample classes then running cross-validations. Tests are run --permIter number of times. Performances are then compared to the value of AUC found by --evaluatePerformance of user supplied --AreaUnderCurve."),
+make_option(c("-H","--nameClass2"),type="character", default="Class 2",
+						help = "Name of class 2 (default = Class_2)."),
+
+make_option(c("-T", "--threads"), type="integer", default=1,
+						help="Number of threads for cross-validations (default = 1)."),
+
+make_option(c("-K", "--optimalK"), type="integer", default=500,
+						help="Used when --evaluatePerformance or --permuationTests is flagged. Specifies the value of K used for cross-validation (default = 500)."),
 
 make_option(c("-q", "--permIter"), type="integer", default=NULL,
- help="Used when --permuationTests is flagged. Specifies the number of permutation tests to be run"),
- 
- make_option(c("-a", "--AreaUnderCurve"), type="double", default=NULL,
- help="Performance of true model. Compared to permuted models when --permutationTests are run. If unflagged, value is determined by --evaluatePerformance"),
+						help="Used when --permuationTests is flagged. Specifies the number of permutation tests to be run"),
 
- make_option(c("-S", "--produceFigures"), action="store_true", default=F,
- help="If flagged, allele fraction box plots, heatmaps, and kernal density figures are produced.")
+make_option(c("-a", "--AreaUnderCurve"), type="double", default=NULL,
+						help="Performance of true model. Compared to permuted models when --permutationTests are run. If unflagged, value is determined by --evaluatePerformance"),
 
- )
+make_option(c("-S", "--produceFigures"), action="store_true", default=F,
+						help="If flagged, allele fraction box plots, heatmaps, and kernal density figures are produced.")
+)
 
-args <- parse_args(OptionParser(option_list=option_list))
-
+args <- parse_args(OptionParser(description=help_text, option=option_list))
 #Argument handling
 name = args$name
 
@@ -94,26 +96,26 @@ write(paste("Input SNVM:", args$matrix, sep=" "), file=paste(name, ".log", sep="
 
 ##Output to the log the required number of nonzero values allows
 write(paste("Removing SNVs that do not have at least ", args$numNonZeros," samples with allele fraction values >0", sep=""), file=paste(name, ".log", sep=""), append=T)
-
+if(!is.null(args$numNAs)){
+	write(paste("Removing SNVs that have more than ", args$numNAs," samples with NA values.", sep=""), file=paste(name, ".log", sep=""), append=T)
+}
 
 
 ##Read in SNVM and set the names of the loci. 
-allSNPs <- read.csv(args$matrix, header=T, stringsAsFactors=F,sep=",")
+allSNPs <- read.csv(args$matrix, header=T, stringsAsFactors=F,sep=",",  na.strings = "Na")
 names <- allSNPs[,c(1,2)]
 allSNPs <- data.matrix(allSNPs[,c(-1,-2)])
 rownames(allSNPs) = names[,1]
 totalNum = nrow(allSNPs)
 
 ##Determine rows that have X non-zero feature values
-if(args$numNonZeros > 1){
-	indices = c()
-	for(i in 1:nrow(allSNPs)){
-		values = unlist(na.omit(allSNPs[i,]))
-		numNZ = length(which(values > 0))
-		if(numNZ >= args$numNonZeros){
-			indices = c(indices, i)
-		}
-	}
+NAs = rowSums(is.na(allSNPs))
+if(s.null(args$numNAs)){
+	numNAs = ncol(allSNPs)
+}else{numNAs = args$numNAs}
+if(args$numNonZeros > 1 | numNAs < ncol(allSNPs)){
+	
+	indices<-which(rowSums(is.na(allSNPs))<=numNAs & rowSums(allSNPs>0,TRUE)>=args$numNonZeros)
 }else{indices = rownames(allSNPs)}
 
 
@@ -122,10 +124,12 @@ names = names[indices,]
 allSNPs = allSNPs[indices,]
 filteredNum = nrow(allSNPs)
 
+##
+
 
 #Output
 write(paste("Total number of SNVs: ", totalNum, sep=""), file=paste(name, ".log", sep=""), append=T)
-write(paste("After limiting by number of non-zeros: " , filteredNum, sep=""), file=paste(name, ".log", sep=""), append=T)
+write(paste("After limiting by number of non-zeros and NA values: " , filteredNum, sep=""), file=paste(name, ".log", sep=""), append=T)
 
 
 #Get size and labels of classes
@@ -169,10 +173,11 @@ if (    !(is.null(args$include))  |     !(is.null(args$exclude))   ){
         
 	##If include is flagged...
 	if(!(is.null(args$include))){
+		write(paste("Only including SNVs whose type has substring: ", args$include, sep=""), file=paste(name, ".log", sep=""), append=T)
 		#Splits the string by "," to identify all SNVs that are included
 		types = strsplit(args$include, ",")[[1]]
 		typed = c()
-    for (i in 1:length(types)){
+		for (i in 1:length(types)){
     	  #Finds the SNVs that have that substring
     		typed = union(rownames(allSNPs)[which(grepl(types[i],names[,2]))], typed)
     }
@@ -182,6 +187,7 @@ if (    !(is.null(args$include))  |     !(is.null(args$exclude))   ){
 	
 	##If exlude is flagged..
 	if (!(is.null(args$exclude))){
+		write(paste("Excluding SNVs whose type has substring: ", args$exclude, sep=""), file=paste(name, ".log", sep=""), append=T)
 		#Splits the string by "," to identify all SNVs that are excluded
     excludes = strsplit(args$exclude, ",")[[1]]
 		for (i in 1:length(excludes)){
@@ -324,7 +330,6 @@ if(!args$unstrat){
 
 if(args$findOptimalK){
 	
-	write("Testing values of K.", file=paste(name, ".log", sep=""), append=T)
 	#If a list of values of K are not provided
 	if(is.null(args$range)){
 		#Sees that the range provided makes sense
@@ -347,8 +352,6 @@ if(args$findOptimalK){
 	write(paste("Testing these values of K:", paste(testAmounts, sep=",",collapse=','), sep=" "), file=paste(name, ".log", sep=""), append=T)
 	
 	
-	
-	#bestK = c()
 	bestK <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
 		#for(skip_index in 1:nrow(skips)){
 		testIndex = skips[skip_index,]
@@ -401,15 +404,13 @@ if(args$findOptimalK){
 				sub.class1 = c(sub.class1, unrounded.prediction.1)
 				resp = c(resp, sub.test.class)
 			}
-			auc_val = as.numeric(ci.auc(roc(resp, sub.class1)))[2] + runif(1,-.0005,.0005)
+			auc_val = as.numeric(ci.auc(roc(resp, sub.class1)))[2] + runif(1,-.00005,.00005) 
 			sub.aucs = c(sub.aucs , auc_val)       
 		}
 		
 		subK = testAmounts[which(sub.aucs == max(sub.aucs))]
 		subK
-		#bestK = c(bestK, subK)
 	}
-	
 	
 	bestK = c(as.numeric(unlist(bestK)))
 	
