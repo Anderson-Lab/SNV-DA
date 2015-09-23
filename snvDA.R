@@ -110,7 +110,7 @@ totalNum = nrow(allSNPs)
 
 ##Determine rows that have X non-zero feature values
 NAs = rowSums(is.na(allSNPs))
-if(s.null(args$numNAs)){
+if(is.null(args$numNAs)){
 	numNAs = ncol(allSNPs)
 }else{numNAs = args$numNAs}
 if(args$numNonZeros > 1 | numNAs < ncol(allSNPs)){
