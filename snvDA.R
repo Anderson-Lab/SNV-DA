@@ -18,6 +18,10 @@ make_option(c("-J", "--evaluatePerformance"), action="store_true", default=F,
 make_option(c("-P", "--permutationTests"), action="store_true", default=F,
 								 help="If flagged, SNV-DA will run permutation tests by randomly permuting sample classes then running cross-validations. Tests are run --permIter number of times. Performances are then compared to the value of AUC found by --evaluatePerformance of user supplied --AreaUnderCurve."),
 
+make_option(c("-I", "--NfoldCV"), type="integer", default=NULL,
+                      help="If specified, N-fold cross-validations will be performed by partitioning the input matrix into NfoldCV setsi during the optimization of K and performance evaluation."),
+make_option(c("-W", "--NfoldCViter"), type="integer", default=1,
+                                                                 help="If NfoldCV is specified, NfoldCV will be run NFoldCViter times during performance evaluation (default=1)."),
 make_option(c("-M","--matrix"),type="character", default=NULL,
 								 help = "SNVM input (csv)"),
 
@@ -215,117 +219,182 @@ write(paste("Number of SNVs in model (produced by filtering by type): ", length(
 
 #If it is stratified...
 if(!(args$unstratified)){
+	#Check to see if we are doing N-fold CVs, if not..
+	if(is.null(args$NfoldCV)){
+		#The total number of iterations is determined by this product
+		maxIterations = choose(num_class_1, args$numOut) * choose(num_class_2, args$numOut)
 
-	#The total number of iterations is determined by this product
-	maxIterations = choose(num_class_1, args$numOut) * choose(num_class_2, args$numOut)
-
 	
-	#If numCV is not specified, the number of iterations will be set to the maximum of maxIterations
-	if(is.null(args$numCV)){
-		numIter = maxIterations
+		#If numCV is not specified, the number of iterations will be set to the maximum of maxIterations
+		if(is.null(args$numCV)){
+			numIter = maxIterations
 		
-	}
-	else{
-		#If numCV set, it set numIter to the minimum of the max and the specified value
-		numIter = min(c(maxIterations, args$numCV))
-	}
-	
-	#Produces a blank matrix fitting the dimensions of the study design and number of iterations
-	skips = matrix(,nrow=numIter, ncol=args$numOut*2)
-	if(numIter == maxIterations){
-	
-		index = 1
-		#Gets every combination of the class labels for each class
-		class1_combos = combn(seq(1,num_class_1,1), args$numOut)
-		class2_combos = combn(seq(num_class_1+1,ncol(allSNPs),1), args$numOut)
-		
-		#For every combination of combinations...
-		for (skip1 in 1:ncol(class1_combos)){
-			for (skip2 in 1:ncol(class2_combos)){
-				#Set the skip index matrix to that entry in the combo list
-				skips[index,1:args$numOut] = class1_combos[1:args$numOut,skip1]
-				skips[index,(args$numOut+1):(2*args$numOut)] = class2_combos[1:args$numOut,skip2]
-				index = index + 1
-			}
 		}
-	}else{
-		#If numIterations is less than maximum iterations, we need to take a random subset of combinations.
-		combos = c()
+		else{
+			#If numCV set, it set numIter to the minimum of the max and the specified value
+			numIter = min(c(maxIterations, args$numCV))
+		}
+	
+		#Produces a blank matrix fitting the dimensions of the study design and number of iterations
+		skips = matrix(,nrow=numIter, ncol=args$numOut*2)
+		if(numIter == maxIterations){
+	
+			index = 1
+			#Gets every combination of the class labels for each class
+			class1_combos = combn(seq(1,num_class_1,1), args$numOut)
+			class2_combos = combn(seq(num_class_1+1,ncol(allSNPs),1), args$numOut)
 		
-		for( i in 1:numIter){
-			
-			#Randomly choose combinations of class labels
-			class1_index = sample(seq(1,num_class_1,1), args$numOut)
-			class2_index = sample(seq(num_class_1+1, ncol(allSNPs),1),args$numOut)
-			
-			#Combine them togeter to get potentional set of indices
-			combin = c(class1_index[1:args$numOut], class2_index[1:args$numOut])
-			
-			#This form loop goes through all previous combinations to ensure unique combinations
-			found = F
-			for(e in 1:length(combos)){
-				numShared = length(union(combos[e], combin))
-				if(numShared == 0){
-					found=T
+			#For every combination of combinations...
+			for (skip1 in 1:ncol(class1_combos)){
+				for (skip2 in 1:ncol(class2_combos)){
+					#Set the skip index matrix to that entry in the combo list
+					skips[index,1:args$numOut] = class1_combos[1:args$numOut,skip1]
+					skips[index,(args$numOut+1):(2*args$numOut)] = class2_combos[1:args$numOut,skip2]
+					index = index + 1
 				}
 			}
-			#If the combo is unique, add it the set of combos
-			if(!found){
-				combos = cbind(combos, combin)
+		}else{
+			#If numIterations is less than maximum iterations, we need to take a random subset of combinations.
+			combos = c()
+		
+			for( i in 1:numIter){
+			
+				#Randomly choose combinations of class labels
+				class1_index = sample(seq(1,num_class_1,1), args$numOut)
+				class2_index = sample(seq(num_class_1+1, ncol(allSNPs),1),args$numOut)
+			
+				#Combine them togeter to get potentional set of indices
+				combin = c(class1_index[1:args$numOut], class2_index[1:args$numOut])
+			
+				#This form loop goes through all previous combinations to ensure unique combinations
+				found = F
+				for(e in 1:length(combos)){
+					numShared = length(union(combos[e], combin))
+					if(numShared == 0){
+						found=T
+					}
+				}
+				#If the combo is unique, add it the set of combos
+				if(!found){
+					combos = cbind(combos, combin)
+				}
+			}
+			#Convert the combos into a skip index matrix
+	
+			skips = t(data.frame(combos))
+	
+			}
+	}else{
+	#Setting up stratified N-fold cross-validations and storing the indexes of a sample in the skips matrix
+		indices = 1:ncol(allSNPs)
+		
+		numPer = floor(min(num_class_1, ncol(allSNPs)-num_class_1)/args$NfoldCV)
+		if(numPer == 0){
+			stop("Not enough samples in one of the groups for N-fold CV")	
+			
+		}
+		rem1 = num_class_1 %% args$NfoldCV
+
+		rem2 = (ncol(allSNPs)-num_class_1) %% args$NfoldCV
+		numIter = args$NfoldCViter
+		skips = matrix(NA, nrow=args$NfoldCV*numIter, ncol=(numPer*2)+2)
+		for(it in 0:numIter-1){
+			rando1 = sample(1:num_class_1)
+			rando2 = sample((num_class_1+1):ncol(allSNPs))
+
+			for(nf in 1:args$NfoldCV){
+				
+				if(nf <= rem1){
+	
+					skips[((it*args$NfoldCV)+nf),1:(numPer+1)] = rando1[((numPer+1)*nf-numPer):(nf*(numPer+1))]
+				}else{
+					skips[((it*args$NfoldCV)+nf),1:(numPer+1)] = c(rando1[(numPer*nf-numPer+1+rem1):(nf*(numPer)+rem1)], NA)
+				}
+				
+				if(nf <= rem2){
+	
+					skips[((it*args$NfoldCV)+nf),(numPer+2):((numPer*2)+2)] = rando2[((numPer+1)*nf-numPer):(nf*(numPer+1))]
+					
+				}else{
+					skips[((it*args$NfoldCV)+nf),(numPer+2):((numPer*2)+2)] = c(rando2[(numPer*nf-numPer+1+rem2):(nf*(numPer)+rem2)], NA)
+				}
+				
 			}
 		}
-		#Convert the combos into a skip index matrix
-	
-		skips = t(data.frame(combos))
-	
-		}
-	
+		skips = data.frame(skips)
+		write.table(skips, file="letssee")
+	}	
 }else{	#Samples should be unstratified
 
-	maxIterations = choose(ncol(allSNPs), args$numOut) 
 	
-	#Set numIter to the minimum of the max iterations and user supplied amount
-	if(is.null(args$numCV)){
-		numIter = maxIterations
-	}else{
-		numIter = min(c(maxIterations, args$numCV))
-	}
-	#If the number of iterations is equal to the max amount of iterations..
-	if(numIter == maxIterations){
-		#Sets the skips index matrix to be all combinations of leave X out from all samples
-		skips = t(combn(seq(1,ncol(allSNPs),1), args$numOut))
-		}else{
+	if(is.null(args$NfoldCV)){
+		maxIterations = choose(ncol(allSNPs), args$numOut) 
 		
-		#Creates a list of unique combos chosen at random
-		combos = c()
-		while( length(combos) < numIter){
-			combin = sample(seq(1,ncol(allSNPs),1), args$numOut)
-			found = F
-			for(e in 1:length(combos)){
-				numShared = length(union(combos[e], combin))
-				if(numShared == 0){
-					found=T
+		#Set numIter to the minimum of the max iterations and user supplied amount
+		if(is.null(args$numCV)){
+			numIter = maxIterations
+		}else{
+			numIter = min(c(maxIterations, args$numCV))
+		}
+		#If the number of iterations is equal to the max amount of iterations..
+		if(numIter == maxIterations){
+			#Sets the skips index matrix to be all combinations of leave X out from all samples
+			skips = t(combn(seq(1,ncol(allSNPs),1), args$numOut))
+		}else{
+			
+			#Creates a list of unique combos chosen at random
+			combos = c()
+			while( length(combos) < numIter){
+				combin = sample(seq(1,ncol(allSNPs),1), args$numOut)
+				found = F
+				for(e in 1:length(combos)){
+					numShared = length(union(combos[e], combin))
+					if(numShared == 0){
+						found=T
+					}
+				}
+				if(!found){
+					combos = cbind(combos, combin)
+				}
+			}	
+			#Sets the combos to be the skip index matrix
+			skips = t(combos)
+		}
+		}else{
+			#Setting up unstratified N-fold cross-validations and storing the indexes of a sample in the skips matrix
+			indices = 1:ncol(allSNPs)
+			numPer = floor(ncol(allSNPs)/args$NfoldCV)
+			rem = ncol(allSNPs) %% args$NfoldCV
+			numIter = args$NfoldCViter
+			skips = matrix(NA, nrow=args$NfoldCV*numIter, ncol=numPer+1)
+			for(it in 0:numIter-1){
+				rando = sample(1:ncol(allSNPs))
+				for(nf in 1:args$NfoldCV){
+					if(nf <= rem){
+						
+						skips[((it*args$NfoldCV)+nf),] = rando[((numPer+1)*nf-numPer):(nf*(numPer+1))]
+						
+					}else{
+						skips[((it*args$NfoldCV)+nf),] = c(rando[(numPer*nf-numPer+1+rem):(nf*(numPer)+rem)], NA)
+					}
 				}
 			}
-			if(!found){
-				combos = cbind(combos, combin)
-			}
-		}	
-		#Sets the combos to be the skip index matrix
-		skips = t(combos)
-    }
+			skips = data.frame(skips)
+			write.table(skips, file="letssee")
+		}
+		
 }
-write(paste("Maximum number of CV iterations: ", maxIterations, sep=""), file=paste(name, ".log", sep=""), append=T)
-write(paste("Running number of CV iterations: ", numIter, sep=""), file=paste(name, ".log", sep=""), append=T)
-if(numIter > 500){
-	warning("Number of iterations is greater than 500. Runtime may be great.")
-	write("Number of iterations is greater than 500. Runtime may be great.", file=paste(name, ".log", sep=""), append=T)	
-}	
-if(!args$unstrat){
-	write(paste("Each CV removes ", args$numOut, " sample(s) from each class.", sep=""),file=paste(name, ".log", sep=""), append=T)
-}else{
-	write(paste("Each CV removes ", args$numOut, " sample(s) all samples.", sep=""),file=paste(name, ".log", sep=""), append=T)
-}	
+# write(paste("Maximum number of CV iterations: ", maxIterations, sep=""), file=paste(name, ".log", sep=""), append=T)
+# write(paste("Running number of CV iterations: ", numIter, sep=""), file=paste(name, ".log", sep=""), append=T)
+# if(numIter > 500){
+# 	warning("Number of iterations is greater than 500. Runtime may be great.")
+# 	write("Number of iterations is greater than 500. Runtime may be great.", file=paste(name, ".log", sep=""), append=T)	
+# }	
+# if(!args$unstrat){
+# 	write(paste("Each CV removes ", args$numOut, " sample(s) from each class.", sep=""),file=paste(name, ".log", sep=""), append=T)
+# }else{
+# 	write(paste("Each CV removes ", args$numOut, " sample(s) all samples.", sep=""),file=paste(name, ".log", sep=""), append=T)
+# }	
 
 
 if(args$findOptimalK){
@@ -351,10 +420,13 @@ if(args$findOptimalK){
 	
 	write(paste("Testing these values of K:", paste(testAmounts, sep=",",collapse=','), sep=" "), file=paste(name, ".log", sep=""), append=T)
 	
-	
-	bestK <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
-		#for(skip_index in 1:nrow(skips)){
-		testIndex = skips[skip_index,]
+	print("Yup")
+	print(nrow(skips))
+	 bestK <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
+	#	for(skip_index in 1:nrow(skips)){
+	  skips2 = skips[skip_index,]
+	  skips2 = skips2[!is.na(skips2)]
+		testIndex = skips2
 		write(paste("Running Find Optimal K CV:",skip_index,sep=""), file=paste(name, ".log", sep=""), append=T)
 		
 		test.data = na.omit(allSNPs[,testIndex])
@@ -465,7 +537,9 @@ if(args$evaluatePerformance){
 	#performStats <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
 	for (skip_index in 1:nrow(skips)){   
 		write(paste("Running Main CV:",skip_index,sep=""), file=paste(name, ".log", sep=""), append=T)
-		testIndex = skips[skip_index,]
+		skips2 = skips[skip_index,]
+		skips2 = skips2[!is.na(skips2)]
+		testIndex = skips2
 		test.data = na.omit(allSNPs[,testIndex])
 		keep = rownames(test.data)
 		if(length(testIndex) ==1){
