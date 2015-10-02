@@ -227,18 +227,18 @@ if(!(args$unstratified)){
 	if(is.null(args$NfoldCV)){
 		#The total number of iterations is determined by this product
 		maxIterations = choose(num_class_1, args$numOut) * choose(num_class_2, args$numOut)
-    print("><<<>")
+
 		#If numCV is not specified, the number of iterations will be set to the maximum of maxIterations
 		if(is.null(args$numCV)){
 			numIter = maxIterations
-		 print("?")
+	
 		}
 		else{
 			#If numCV set, it set numIter to the minimum of the max and the specified value
 			numIter = min(c(maxIterations, args$numCV))
-			print("?")
+
 		}
-	  print(numIter)
+
 		#Produces a blank matrix fitting the dimensions of the study design and number of iterations
 		skips = matrix(,nrow=numIter, ncol=args$numOut*2)
 		if(numIter == maxIterations){
@@ -287,12 +287,12 @@ if(!(args$unstratified)){
 			#Convert the combos into a skip index matrix
 	
 			skips = t(data.frame(combos))
-			print(skips)
+
 			}
 	}else{
 	#Setting up stratified N-fold cross-validations and storing the indexes of a sample in the skips matrix
 		indices = 1:ncol(allSNPs)
-		print("?")
+
 		numPer = floor(min(num_class_1, ncol(allSNPs)-num_class_1)/args$NfoldCV)
 		if(numPer == 0){
 			stop("Not enough samples in one of the groups for N-fold CV")	
@@ -511,7 +511,7 @@ if(args$findOptimalK){
   	plot = plot + theme_bw()
   	plot = plot + theme(axis.text=element_text(size=8), axis.title=element_text(size=10,face="bold"))
 		plot
-		print(plot)
+
   	dev.off()	
   	}
 	
