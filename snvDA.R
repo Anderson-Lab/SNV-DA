@@ -18,9 +18,10 @@ make_option(c("-J", "--evaluatePerformance"), action="store_true", default=F,
 make_option(c("-P", "--permutationTests"), action="store_true", default=F,
 								 help="If flagged, SNV-DA will run permutation tests by randomly permuting sample classes then running cross-validations. Tests are run --permIter number of times. Performances are then compared to the value of AUC found by --evaluatePerformance of user supplied --AreaUnderCurve."),
 
-make_option(c("-I", "--NfoldCV"), type="integer", default=NULL,
+make_option(c("-W", "--NfoldCV"), type="integer", default=NULL,
                       help="If specified, N-fold cross-validations will be performed by partitioning the input matrix into NfoldCV setsi during the optimization of K and performance evaluation."),
-make_option(c("-W", "--NfoldCViter"), type="integer", default=1,
+
+make_option(c("-I", "--iterNfoldCV"), type="integer", default=1,
                                                                  help="If NfoldCV is specified, NfoldCV will be run NFoldCViter times during performance evaluation (default=1)."),
 make_option(c("-M","--matrix"),type="character", default=NULL,
 								 help = "SNVM input (csv)"),
@@ -87,6 +88,7 @@ make_option(c("-S", "--produceFigures"), action="store_true", default=F,
 )
 
 args <- parse_args(OptionParser(description=help_text, option=option_list))
+
 #Argument handling
 name = args$name
 
@@ -219,22 +221,24 @@ write(paste("Number of SNVs in model (produced by filtering by type): ", length(
 
 #If it is stratified...
 if(!(args$unstratified)){
+
 	#Check to see if we are doing N-fold CVs, if not..
+	
 	if(is.null(args$NfoldCV)){
 		#The total number of iterations is determined by this product
 		maxIterations = choose(num_class_1, args$numOut) * choose(num_class_2, args$numOut)
-
-	
+    print("><<<>")
 		#If numCV is not specified, the number of iterations will be set to the maximum of maxIterations
 		if(is.null(args$numCV)){
 			numIter = maxIterations
-		
+		 print("?")
 		}
 		else{
 			#If numCV set, it set numIter to the minimum of the max and the specified value
 			numIter = min(c(maxIterations, args$numCV))
+			print("?")
 		}
-	
+	  print(numIter)
 		#Produces a blank matrix fitting the dimensions of the study design and number of iterations
 		skips = matrix(,nrow=numIter, ncol=args$numOut*2)
 		if(numIter == maxIterations){
@@ -254,6 +258,7 @@ if(!(args$unstratified)){
 				}
 			}
 		}else{
+			
 			#If numIterations is less than maximum iterations, we need to take a random subset of combinations.
 			combos = c()
 		
@@ -282,12 +287,12 @@ if(!(args$unstratified)){
 			#Convert the combos into a skip index matrix
 	
 			skips = t(data.frame(combos))
-	
+			print(skips)
 			}
 	}else{
 	#Setting up stratified N-fold cross-validations and storing the indexes of a sample in the skips matrix
 		indices = 1:ncol(allSNPs)
-		
+		print("?")
 		numPer = floor(min(num_class_1, ncol(allSNPs)-num_class_1)/args$NfoldCV)
 		if(numPer == 0){
 			stop("Not enough samples in one of the groups for N-fold CV")	
@@ -326,7 +331,7 @@ if(!(args$unstratified)){
 	}	
 }else{	#Samples should be unstratified
 
-	
+
 	if(is.null(args$NfoldCV)){
 		maxIterations = choose(ncol(allSNPs), args$numOut) 
 		
@@ -384,6 +389,7 @@ if(!(args$unstratified)){
 		}
 		
 }
+
 # write(paste("Maximum number of CV iterations: ", maxIterations, sep=""), file=paste(name, ".log", sep=""), append=T)
 # write(paste("Running number of CV iterations: ", numIter, sep=""), file=paste(name, ".log", sep=""), append=T)
 # if(numIter > 500){
@@ -420,10 +426,9 @@ if(args$findOptimalK){
 	
 	write(paste("Testing these values of K:", paste(testAmounts, sep=",",collapse=','), sep=" "), file=paste(name, ".log", sep=""), append=T)
 	
-	print("Yup")
-	print(nrow(skips))
-	 bestK <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
-	#	for(skip_index in 1:nrow(skips)){
+
+	 #bestK <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
+		for(skip_index in 1:nrow(skips)){
 	  skips2 = skips[skip_index,]
 	  skips2 = skips2[!is.na(skips2)]
 		testIndex = skips2
