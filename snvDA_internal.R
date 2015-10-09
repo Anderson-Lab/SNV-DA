@@ -437,8 +437,8 @@ if(args$findOptimalK){
 	write(paste("Testing these values of K:", paste(testAmounts, sep=",",collapse=','), sep=" "), file=paste(name, ".log", sep=""), append=T)
 	
 
-	 #bestK <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
-	for(skip_index in 1:nrow(skips)){
+	 bestK <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
+	#for(skip_index in 1:nrow(skips)){
 	  skips2 = skips[skip_index,]
 	  skips2 = skips2[!is.na(skips2)]
 		testIndex = skips2
@@ -475,7 +475,7 @@ if(args$findOptimalK){
 						next
 					}
 					
-					sub.test.data = sub.test.data[which(rownames(sub.test.data) %in% colnames(splsda.model$X))]
+					sub.test.data = sub.test.data[which(rownames(sub.test.data) %in% colnames(splsda.model$X)),]
 					prediction <- tryCatch(predict(splsda.model, t(sub.test.data)),  error = function(e) {NULL})
 					if (is.null(prediction)){
 						next
