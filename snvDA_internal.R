@@ -6,6 +6,8 @@ suppressPackageStartupMessages(library(pROC))
 suppressPackageStartupMessages(library(gplots))
 suppressPackageStartupMessages(library(ggplot2))
 
+
+
 help_text = "\nSNV-DA is used to create and evaluate sPLS-DA models to identify single nucleotide variations (SNVs) that accurately classify phenotype. The steps of the pipeline include:\n1) Finding optimal value of number of features to be selected in the model (K)\n2) Evaluating the model using cross-validations and optimal value of K\n3) Find and rank the K features that are correlated with predictive accuracy\n4) Permutation tests to determine if model is discriminate towards the true grouping of labels.\n\n
 The script has several parameters that allows the user to design their own analysis:\n1) The number of non-zero values by which to filter the matrix\n2) The number of NA values allowed for each SNV\n3) The type of SNV to include in the model\n4) The range and/or values of K tested.\n4) Cross-validation design (number of samples to take out from each group, the stratification of test samples [force test samples to be pulled equally from each group], and the number of cross-validations).\n\nHappy hunting!"  
 option_list <- list(
@@ -29,8 +31,6 @@ make_option(c("-V", "--interalNfoldCV"), type="integer", default=NULL,
 
 make_option(c("-j", "--interalIterNfoldCV"), type="integer", default=1,
 						help="If internalNfoldCV is specified, internalNfoldCV will be run internalIterNFoldCV times during performance evaluation and finding of optimal K (default=1)."),
-
-
 
 
 make_option(c("-M","--matrix"),type="character", default=NULL,
@@ -96,6 +96,8 @@ make_option(c("-a", "--AreaUnderCurve"), type="double", default=NULL,
 make_option(c("-S", "--produceFigures"), action="store_true", default=F,
 						help="If flagged, allele fraction box plots, heatmaps, and kernal density figures are produced.")
 )
+
+
 
 args <- parse_args(OptionParser(description=help_text, option=option_list))
 
@@ -436,7 +438,7 @@ if(args$findOptimalK){
 	
 
 	 #bestK <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
-		for(skip_index in 1:nrow(skips)){
+	for(skip_index in 1:nrow(skips)){
 	  skips2 = skips[skip_index,]
 	  skips2 = skips2[!is.na(skips2)]
 		testIndex = skips2
@@ -463,15 +465,17 @@ if(args$findOptimalK){
 					
 					sub.test.class = training.data.classes[sub_skip]
 					sub.training.classes = training.data.classes[-sub_skip]
-					sub.test.data = na.omit(training.data[,sub_skip])
-					keep = attributes(sub.test.data)$names
+					sub.test.data = data.frame(training.data[,sub_skip])
+					rownames(sub.test.data) = rownames(training.data)
+					sub.test.data = na.omit(sub.test.data)
+					keep = rownames(sub.test.data)
 					sub.training.data = training.data[,-sub_skip][which(rownames(training.data) %in% keep),]
 					splsda.model <- tryCatch(splsda(t(sub.training.data), factor(t(sub.training.classes)), ncomp=1, keepX=numFeatures),  error = function(e) {NULL})
 					if (is.null(splsda.model)){
 						next
 					}
 					
-					sub.test.data = sub.test.data[which(attributes(sub.test.data)$names %in% colnames(splsda.model$X))]
+					sub.test.data = sub.test.data[which(rownames(sub.test.data) %in% colnames(splsda.model$X))]
 					prediction <- tryCatch(predict(splsda.model, t(sub.test.data)),  error = function(e) {NULL})
 					if (is.null(prediction)){
 						next
@@ -486,18 +490,13 @@ if(args$findOptimalK){
 					}
 					class.1.centroid <- prediction$centroid[1]
 					class.2.centroid <- prediction$centroid[2]
-					inv <- (class.1.centroid > class.2.centroid)
-					if(inv){
-						temp <- class.1.centroid
-						class.1.centroid <- class.2.centroid
-						class.2.centroid <- temp
-					}
-					class.2.centroid <- class.2.centroid - class.1.centroid
-					unrounded.predictions.1 <- prediction$variates[i] - class.1.centroid / class.2.centroid
-					if(inv){
-						unrounded.predictions.1 = 1 - unrounded.predictions.1
-					}
-					sub.class1 = c(sub.class1, unrounded.predictions.1)
+			
+					unrounded.prediction <- (prediction$variates[1] - class.1.centroid) / (class.2.centroid - class.1.centroid)
+					mx_label = max(sub.training.classes)
+					mn_label = min(sub.training.classes)
+					unrounded.prediction = unrounded.prediction * (mx_label-mn_label) + mn_label
+					
+					sub.class1 = c(sub.class1, unrounded.prediction)
 					resp = c(resp, sub.test.class)
 				}
 				auc_val = as.numeric(ci.auc(roc(resp, sub.class1)))[2] + runif(1,-.00005,.00005) 
@@ -506,7 +505,6 @@ if(args$findOptimalK){
 				correct = 0
 				missed = 0
 				sub.class1 = c()
-				sub.class2 = c()
 				resp = c()
 				
 				
@@ -586,51 +584,42 @@ if(args$findOptimalK){
 					}
 					
 					sub.test.data = sub.test.data[which(attributes(sub.test.data)$names %in% colnames(splsda.model$X))]
-					prediction <- predict(splsda.model, t(sub.test.data))
+					prediction <- tryCatch(predict(splsda.model, t(sub.test.data)),  error = function(e) {NULL})
+					if (is.null(prediction)){
+						next
+					}
+					
 					pred.classes <- prediction$class$centroids.dist
+					
 					class.1.centroid <- prediction$centroid[1]
 					class.2.centroid <- prediction$centroid[2]
-					inv <- (class.1.centroid > class.2.centroid)
-					if(inv){
-						temp <- class.1.centroid
-						class.1.centroid <- class.2.centroid
-						class.2.centroid <- temp
-					}
-					class.2.centroid <- class.2.centroid - class.1.centroid
-					unrounded.predictions.1 = c()
-					unrounded.predictions.2 = c()
+					
+					unrounded.predictions = c()
 					
 					for( i in 1:length(testIndex)){
 						sampleClass = sub.test.class[i]
 						if (pred.classes[i] == sampleClass){
 							correct <- correct + 1;
-							
-							if(as.numeric(sampleClass) == 1){
-								unrounded.predictions.1= c(unrounded.predictions.1, prediction$variates[i] - class.1.centroid / class.2.centroid)
-							}else{
-								unrounded.predictions.2= c(unrounded.predictions.2, prediction$variates[i] - class.1.centroid / class.2.centroid)
-							}
 						}else{
 							missed <- missed + 1;
 							if(as.numeric(sampleClass) == 1){
 								OneWrong <- OneWrong + 1;
-								unrounded.predictions.1= c(unrounded.predictions.1, prediction$variates[i] - class.1.centroid / class.2.centroid)
 							}else{
-								TwoWrong <- TwoWrong + 1	
-								unrounded.predictions.2= c(unrounded.predictions.2, prediction$variates[i] - class.1.centroid / class.2.centroid)
+								TwoWrong <- TwoWrong +1
 							}
 						}
+					 
+						unrounded.prediction <- (prediction$variates[i] - class.1.centroid) / (class.2.centroid - class.1.centroid)
+						mx_label = max(sub.training.classes)
+						mn_label = min(sub.training.classes)
+						unrounded.prediction = unrounded.prediction * (mx_label-mn_label) + mn_label
+						unrounded.predictions = c(unrounded.predictions, unrounded.prediction)
 					}
-					
-					if(inv){
-						unrounded.predictions.1 = 1 - unrounded.predictions.1
-						unrounded.predictions.2 = 1 - unrounded.predictions.2
-					}
-					
-					class1 = c(class1, unrounded.predictions.1)
-					class2 = c(class2, unrounded.predictions.2)
+
+					sub.class1 = c(sub.class1, unrounded.predictions.1)			
+					resp = c(resp,  sub.test.class)
 				}
-				auc_val = as.numeric(ci.auc(roc(controls=class1, cases=class2)))[2] + runif(1,-.00005,.00005) 
+				auc_val = as.numeric(ci.auc(roc(resp, sub.class1)))[2] + runif(1,-.00005,.00005) 
 				sub.aucs = c(sub.aucs , auc_val)    
 
 			  }
@@ -683,94 +672,172 @@ write(paste("Optimal K: ", optK, sep=""), file=paste(name, ".log", sep=""), appe
 
 ####Final CV using the best value of K
 if(args$evaluatePerformance){
-	correct <- 0
-	missed <- 0
-	OneWrong <- 0
-	TwoWrong <- 0
-	class1 <- c()
-	class2 <- c()
-	write("Evaluating Optimal K.", file=paste(name, ".log", sep=""), append=T)
-	#performStats <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
-	for (skip_index in 1:nrow(skips)){   
-		write(paste("Running Main CV:",skip_index,sep=""), file=paste(name, ".log", sep=""), append=T)
-		skips2 = skips[skip_index,]
-		skips2 = skips2[!is.na(skips2)]
-		testIndex = skips2
-		test.data = na.omit(allSNPs[,testIndex])
-		keep = rownames(test.data)
-		if(length(testIndex) ==1){
-			keep = attributes(test.data)$names
+	if(args$iterNfoldCV == 1){
+		correct <- 0
+		missed <- 0
+		OneWrong <- 0
+		TwoWrong <- 0
+		class1 <- c()
+		class2 <- c()
+		write("Evaluating Optimal K.", file=paste(name, ".log", sep=""), append=T)
+		#performStats <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
+		for (skip_index in 1:nrow(skips)){   
+			write(paste("Running Main CV:",skip_index,sep=""), file=paste(name, ".log", sep=""), append=T)
+			skips2 = skips[skip_index,]
+			skips2 = skips2[!is.na(skips2)]
+			testIndex = skips2
+			sub.test.data = data.frame(allSNPs[,testIndex])
+			rownames(sub.test.data) = rownames(allSNPs)
+			sub.test.data = na.omit(sub.test.data)
+			keep = rownames(sub.test.data)
 			
-		}else{
-			keep = rownames(test.data)
-		}
-		
-		training.data = allSNPs[which(rownames(allSNPs) %in% keep),-testIndex]
-		training.classes = classes[-testIndex]
-		test.classes = classes[testIndex]
-		splsda.model <- splsda(t(training.data), factor(t(training.classes)), ncomp=1, keepX=optK)
-		
-		training.data = training.data[which(rownames(training.data) %in% colnames(splsda.model$X)),]
-		if(length(testIndex) ==1){
-			test.data = test.data[which(attributes(test.data)$names %in% colnames(splsda.model$X))]
+			training.data = allSNPs[which(rownames(allSNPs) %in% keep),-testIndex]
+			training.classes = classes[-testIndex]
+			test.classes = classes[testIndex]
+			splsda.model <- splsda(t(training.data), factor(t(training.classes)), ncomp=1, keepX=optK)
 			
-		}else{
+			training.data = training.data[which(rownames(training.data) %in% colnames(splsda.model$X)),]
 			test.data = test.data[which(rownames(test.data) %in% colnames(splsda.model$X)),]
-		}
-		
-		prediction <- predict(splsda.model, t(test.data))
-		pred.classes <- prediction$class$centroids.dist;
-		class.1.centroid <- prediction$centroid[1]
-		class.2.centroid <- prediction$centroid[2]
-		inv <- (class.1.centroid > class.2.centroid)
-		if(inv){
-			temp <- class.1.centroid
-			class.1.centroid <- class.2.centroid
-			class.2.centroid <- temp
-		}
-		class.2.centroid <- class.2.centroid - class.1.centroid
-		unrounded.predictions.1 = c()
-		unrounded.predictions.2 = c()
-		
-		for( i in 1:length(testIndex)){
-			sampleClass = classes[testIndex[i]]
-			if (pred.classes[i] == sampleClass){
-				correct <- correct + 1;
+			
+			prediction <- predict(splsda.model, t(test.data))
+			pred.classes <- prediction$class$centroids.dist;
+			class.1.centroid <- prediction$centroid[1]
+			class.2.centroid <- prediction$centroid[2]
+			
+			unrounded.predictions.1 = c()
+			unrounded.predictions.2 = c()
+			
+			pred.classes <- prediction$class$centroids.dist
+			
+			class.1.centroid <- prediction$centroid[1]
+			class.2.centroid <- prediction$centroid[2]
+			
+			unrounded.predictions = c()
+			
+			for( i in 1:length(testIndex)){
+				sampleClass = sub.test.class[i]
+				if (pred.classes[i] == sampleClass){
+					correct <- correct + 1;
+				}else{
+					missed <- missed + 1;
+					if(as.numeric(sampleClass) == 1){
+						OneWrong <- OneWrong + 1;
+					}else{
+						TwoWrong <- TwoWrong +1
+					}
+				}
 				
-				if(as.numeric(sampleClass) == 1){
-					unrounded.predictions.1= c(unrounded.predictions.1, prediction$variates[i] - class.1.centroid / class.2.centroid)
-				}else{
-					unrounded.predictions.2= c(unrounded.predictions.2, prediction$variates[i] - class.1.centroid / class.2.centroid)
-				}
-			}else{
-				missed <- missed + 1;
-				if(as.numeric(sampleClass) == 1){
-					OneWrong <- OneWrong + 1;
-					unrounded.predictions.1= c(unrounded.predictions.1, prediction$variates[i] - class.1.centroid / class.2.centroid)
-				}else{
-					TwoWrong <- TwoWrong + 1	
-					unrounded.predictions.2= c(unrounded.predictions.2, prediction$variates[i] - class.1.centroid / class.2.centroid)
-				}
-			}
-		}
-		
-		if(inv){
-			unrounded.predictions.1 = 1 - unrounded.predictions.1
-			unrounded.predictions.2 = 1 - unrounded.predictions.2
-		}
-		
-		class1 = c(class1, unrounded.predictions.1)
-		class2 = c(class2, unrounded.predictions.2)
-
+				unrounded.prediction <- (prediction$variates[i] - class.1.centroid) / (class.2.centroid - class.1.centroid)
+				mx_label = max(sub.training.classes)
+				mn_label = min(sub.training.classes)
+				unrounded.prediction = unrounded.prediction * (mx_label-mn_label) + mn_label
+				unrounded.predictions = c(unrounded.predictions, unrounded.prediction)
+			}	
+			
+			sub.class1 = c(sub.class1, unrounded.predictions.1)			
+			resp = c(resp,  sub.test.class)
+			
 		}	
+		
+		auc_ci = as.numeric(ci.auc(roc(resp, sub.class1)))
+		acc = correct / (correct + missed)
+		class1.sens = (nrow(skips)-OneWrong)/nrow(skips)
+		class2.sens = (nrow(skips)-TwoWrong)/nrow(skips)
+	}else{
+		aucs = c()
+		acc = c()
+		class1.sens = c()
+		class2.sens = c()
+		for(iter in 0:args$iterNfoldCV-1){
+				iter_skips = skips[iter*args$NfoldCV + 1:iter*args$NfoldCV + args$NfoldCV,]
+				correct <- 0
+				missed <- 0
+				OneWrong <- 0
+				TwoWrong <- 0
+				class1 <- c()
+				class2 <- c()
+				write("Evaluating Optimal K.", file=paste(name, ".log", sep=""), append=T)
+				#performStats <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
+				for (skip_index in 1:nrow(iter_skips)){   
+					write(paste("Running Main CV:",skip_index,sep=""), file=paste(name, ".log", sep=""), append=T)
+					skips2 = iter_skips[skip_index,]
+					skips2 = skips2[!is.na(skips2)]
+					testIndex = skips2
+					sub.test.data = data.frame(allSNPs[,testIndex])
+					rownames(sub.test.data) = rownames(allSNPs)
+					sub.test.data = na.omit(sub.test.data)
+					keep = rownames(sub.test.data)
+					
+					training.data = allSNPs[which(rownames(allSNPs) %in% keep),-testIndex]
+					training.classes = classes[-testIndex]
+					test.classes = classes[testIndex]
+					splsda.model <- splsda(t(training.data), factor(t(training.classes)), ncomp=1, keepX=optK)
+					
+					training.data = training.data[which(rownames(training.data) %in% colnames(splsda.model$X)),]
+					test.data = test.data[which(rownames(test.data) %in% colnames(splsda.model$X)),]
+					
+					prediction <- predict(splsda.model, t(test.data))
+					pred.classes <- prediction$class$centroids.dist;
+					class.1.centroid <- prediction$centroid[1]
+					class.2.centroid <- prediction$centroid[2]
+					
+					unrounded.predictions.1 = c()
+					unrounded.predictions.2 = c()
+					
+					pred.classes <- prediction$class$centroids.dist
+					
+					class.1.centroid <- prediction$centroid[1]
+					class.2.centroid <- prediction$centroid[2]
+					
+					unrounded.predictions = c()
+					
+					for( i in 1:length(testIndex)){
+						sampleClass = sub.test.class[i]
+						if (pred.classes[i] == sampleClass){
+							correct <- correct + 1;
+						}else{
+							missed <- missed + 1;
+							if(as.numeric(sampleClass) == 1){
+								OneWrong <- OneWrong + 1;
+							}else{
+								TwoWrong <- TwoWrong +1
+							}
+						}
+						
+						unrounded.prediction <- (prediction$variates[i] - class.1.centroid) / (class.2.centroid - class.1.centroid)
+						mx_label = max(sub.training.classes)
+						mn_label = min(sub.training.classes)
+						unrounded.prediction = unrounded.prediction * (mx_label-mn_label) + mn_label
+						unrounded.predictions = c(unrounded.predictions, unrounded.prediction)
+					}	
+					
+					sub.class1 = c(sub.class1, unrounded.predictions.1)			
+					resp = c(resp,  sub.test.class)
+					
+				}	
+				
+				aucs = c(aucs, as.numeric(ci.auc(roc(resp, sub.class1)))[2])
+				acc = c(acc, correct / (correct + missed))
+				class1.sens = c(class1.sens, (nrow(skips)-OneWrong)/nrow(skips))
+				class2.sens = c(class2.sens, (nrow(skips)-TwoWrong)/nrow(skips))
 
-	auc_ci = as.numeric(ci.auc(roc(controls=class1, cases=class2)))
+				
+		}
+		AUC = mean(aucs)
+		std.err = std(aucs)/sqrt(length(aucs))
+		auc_ci = c(AUC-1.96*std.err, AUC, AUC+1.96*std.err)
+		acc = mean(acc)
+		class1.sens = mean(class1.sens)
+		class2.sense = mean(class2.sens)
+		
+	}	
+			
 	write(paste("AUC CI =  ", auc_ci, sep=""), file=paste(name, ".log", sep=""), append=T)
 	
 	accuracy =  correct / (correct + missed)
 	write(paste("Accuracy: ", accuracy, sep=""), file=paste(name, ".log", sep=""), append=T)	
 	
-	stats = cbind.data.frame(c("Optimal K", "Predictive Accuracy", "Lower 95% CI","AUC","Upper 95% CI",paste(args$nameClass1, " Sensitivity", sep=""), paste(args$nameClass2, " Sensitivity", sep="")), c(optK, accuracy, auc_ci, (nrow(skips)-OneWrong)/nrow(skips), (nrow(skips)-TwoWrong)/nrow(skips))) 
+	stats = cbind.data.frame(c("Optimal K", "Predictive Accuracy", "Lower 95% CI","AUC","Upper 95% CI",paste(args$nameClass1, " Sensitivity", sep=""), paste(args$nameClass2, " Sensitivity", sep="")), c(optK, acc, auc_ci, class1.sens, class2.sens)) 
 	
 	write(t(as.data.frame(stats)), ncol=2,file=paste(name, "_performance_stats.txt", sep=""), sep="\t")
 	##Determine most relevant biomarkers with optimal M
@@ -788,7 +855,7 @@ if(args$evaluatePerformance){
 		}
 	}
 	snvs[,3] = as.character(names[,2][which(names[,1] %in% snvs[,1] )])
-	
+	snvs[,2] = as.numeric(snvs[,2])
 	topSNVs = snvs[order(as.numeric(snvs[,2]), decreasing = T),]
 	write(t(topSNVs), ncol=3, file=paste(name, "_top_SNVs.txt", sep=""), sep="\t")
 	
@@ -842,6 +909,10 @@ if(args$evaluatePerformance){
 		}
 }
 
+	
+	
+	
+	
 if(args$permutationTests){
 
 	if(!(args$findOptimalK) & is.null(args$optimalK)){
@@ -869,21 +940,18 @@ if(args$permutationTests){
 		missed <- 0
 		OneWrong <- 0
 		TwoWrong <- 0
-		class1 <- c()
-		class2 <- c()
+		sub.class1 <- c()
+		resp <- c()
 		allSNPs = allSNPs[, sample(c(seq(1,ncol(allSNPs),1)))]
 		
 		#performStats <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
 		for (skip_index in 1:nrow(skips)){   
 			testIndex = skips[skip_index,]
-			test.data = na.omit(allSNPs[,testIndex])
-			keep = rownames(test.data)
-			if(length(testIndex) ==1){
-				keep = attributes(test.data)$names
-				
-			}else{
-				keep = rownames(test.data)
-			}
+		
+			sub.test.data = data.frame(allSNPs[,testIndex])
+			rownames(sub.test.data) = rownames(allSNPs)
+			sub.test.data = na.omit(sub.test.data)
+			keep = rownames(sub.test.data)
 			
 			training.data = allSNPs[which(rownames(allSNPs) %in% keep),-testIndex]
 			training.classes = classes[-testIndex]
@@ -891,72 +959,46 @@ if(args$permutationTests){
 			splsda.model <- splsda(t(training.data), factor(t(training.classes)), ncomp=1, keepX=optK)
 			
 			training.data = training.data[which(rownames(training.data) %in% colnames(splsda.model$X)),]
-			if(length(testIndex) ==1){
-				test.data = test.data[which(attributes(test.data)$names %in% colnames(splsda.model$X))]
-				
-			}else{
-				test.data = test.data[which(rownames(test.data) %in% colnames(splsda.model$X)),]
-			}
+			test.data = test.data[which(rownames(test.data) %in% colnames(splsda.model$X)),]
 			
 			prediction <- predict(splsda.model, t(test.data))
 			pred.classes <- prediction$class$centroids.dist;
-			
 			class.1.centroid <- prediction$centroid[1]
 			class.2.centroid <- prediction$centroid[2]
-			
-			inv <- (class.1.centroid > class.2.centroid)
-			
-			if(inv){
-				temp <- class.1.centroid
-				class.1.centroid <- class.2.centroid
-				class.2.centroid <- temp
-			}
-			
-			class.2.centroid <- class.2.centroid - class.1.centroid
 			
 			unrounded.predictions.1 = c()
 			unrounded.predictions.2 = c()
 			
+			pred.classes <- prediction$class$centroids.dist
+			
+			class.1.centroid <- prediction$centroid[1]
+			class.2.centroid <- prediction$centroid[2]
+			
+			unrounded.predictions = c()
+			
 			for( i in 1:length(testIndex)){
-				sampleClass = classes[testIndex[i]]
+				sampleClass = sub.test.class[i]
 				if (pred.classes[i] == sampleClass){
 					correct <- correct + 1;
-					
-					if(as.numeric(sampleClass) == 1){
-						unrounded.predictions.1= c(unrounded.predictions.1, prediction$variates[i] - class.1.centroid / class.2.centroid)
-					}else{
-						unrounded.predictions.2= c(unrounded.predictions.2, prediction$variates[i] - class.1.centroid / class.2.centroid)
-					}
-					
 				}else{
 					missed <- missed + 1;
 					if(as.numeric(sampleClass) == 1){
-						
 						OneWrong <- OneWrong + 1;
-						unrounded.predictions.1= c(unrounded.predictions.1, prediction$variates[i] - class.1.centroid / class.2.centroid)
 					}else{
-						
-						TwoWrong <- TwoWrong + 1	
-						unrounded.predictions.2= c(unrounded.predictions.2, prediction$variates[i] - class.1.centroid / class.2.centroid)
+						TwoWrong <- TwoWrong +1
 					}
 				}
+				
+				unrounded.prediction <- (prediction$variates[i] - class.1.centroid) / (class.2.centroid - class.1.centroid)
+				mx_label = max(sub.training.classes)
+				mn_label = min(sub.training.classes)
+				unrounded.prediction = unrounded.prediction * (mx_label-mn_label) + mn_label
+				unrounded.predictions = c(unrounded.predictions, unrounded.prediction)
 			}
-			
-			if(inv){
-				unrounded.predictions.1 = 1 - unrounded.predictions.1
-				unrounded.predictions.2 = 1 - unrounded.predictions.2
-			}
-			
-			class1_nim = "class1"
-			class1_nim
-			unrounded.predictions.1
-			class2_nim = "class2"
-			class2_nim
-			unrounded.predictions.2
-			class1 = c(class1, unrounded.predictions.1)
-			class2 = c(class2, unrounded.predictions.2)
+			sub.class1 = c(sub.class1, unrounded.predictions)
+			resp = c(sub.class1, sub.test.class)
 		}	
-		auc_ci = as.numeric(ci.auc(roc(controls=class1, cases=class2)))
+		auc_ci = as.numeric(ci.auc(roc(resp, sub.class1)))
 		auc_ci[2]
 	}
 
