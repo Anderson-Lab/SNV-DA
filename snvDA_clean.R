@@ -708,6 +708,7 @@ if(args$evaluatePerformance){
 				results = get_predictions(iter_skips, allSNPs, classes, optK)
 				
 				aucs = c(aucs, results$AUC[2])
+				write(results$AUC[2], file=paste(name, "_AUCs.log", sep=""), append=T)
 				acc = c(acc, results$ACC)
 				class1.sens = c(class1.sens, results$Sens.1)
 				class2.sens = c(class2.sens, results$Sens.2)
