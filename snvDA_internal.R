@@ -26,10 +26,10 @@ make_option(c("-W", "--NfoldCV"), type="integer", default=NULL,
 make_option(c("-I", "--iterNfoldCV"), type="integer", default=1,
                                                                  help="If NfoldCV is specified, NfoldCV will be run iterNFoldCV times during performance evaluation  and finding of optimal K (default=1). "),
 
-make_option(c("-V", "--interalNfoldCV"), type="integer", default=NULL,
+make_option(c("-V", "--internalNfoldCV"), type="integer", default=NULL,
 						help="If specified, N-fold cross-validations will be performed during the interval CV while finding optimal K by partitioning the input matrix into iternalNfoldCV setsi during the optimization of K and performance evaluation. If left unspecified, leave-one-out crossvalidations will be used for the interval cross-validation."),
 
-make_option(c("-j", "--interalIterNfoldCV"), type="integer", default=1,
+make_option(c("-j", "--internalIterNfoldCV"), type="integer", default=1,
 						help="If internalNfoldCV is specified, internalNfoldCV will be run internalIterNFoldCV times during performance evaluation and finding of optimal K (default=1)."),
 
 
@@ -165,7 +165,7 @@ if(is.null(args$sizeClass1)){
 	
 	write(paste("# of samples in ", args$nameClass2, ": ", num_class_2, sep=""), file=paste(name, ".log", sep=""), append=T)
 	write(paste("Labels: ", paste(class2Labels, collapse=",", sep=""), sep=""), file=paste(name, ".log", sep=""), append=T)
-	classes = c(rep(0,num_class_1), rep(1, num_class_2))
+	classes = c(rep(1,num_class_1), rep(2, num_class_2))
 	}
 	
 
@@ -411,7 +411,7 @@ if(!(args$unstratified)){
 # }else{
 # 	write(paste("Each CV removes ", args$numOut, " sample(s) all samples.", sep=""),file=paste(name, ".log", sep=""), append=T)
 # }	
-
+print(skips)
 
 if(args$findOptimalK){
 	
@@ -455,11 +455,12 @@ if(args$findOptimalK){
 		training.data.classes = classes[-testIndex]
 		sub.aucs = c()
 		for (numFeatures in testAmounts){
-			if(is.null(args$interNfoldCV)){
+			if(is.null(args$interalNfoldCV)){
 				correct = 0
 				missed = 0
 				sub.class1 = c()
 				resp = c()
+				print(numFeatures)
 				for (sub_skip in 1:ncol(training.data)){
 					
 					
@@ -476,18 +477,11 @@ if(args$findOptimalK){
 					}
 					
 					sub.test.data = sub.test.data[which(rownames(sub.test.data) %in% colnames(splsda.model$X)),]
-					prediction <- tryCatch(predict(splsda.model, t(sub.test.data)),  error = function(e) {NULL})
+					prediction <- tryCatch(predict(splsda.model, t(sub.test.data), method = "max.dist"),  error = function(e) {NULL})
 					if (is.null(prediction)){
 						next
 					}
-					pred.classes <- prediction$class$centroids.dist;
-					pred.class.one <- pred.classes[1];
-					
-					if (pred.class.one == sub.test.class){
-						correct <- correct + 1;
-					}else{
-						missed <- missed + 1;
-					}
+			
 					class.1.centroid <- prediction$centroid[1]
 					class.2.centroid <- prediction$centroid[2]
 			
@@ -500,6 +494,7 @@ if(args$findOptimalK){
 					resp = c(resp, sub.test.class)
 				}
 				auc_val = as.numeric(ci.auc(roc(resp, sub.class1)))[2] + runif(1,-.00005,.00005) 
+				print(auc_val)
 				sub.aucs = c(sub.aucs , auc_val)       
 			}else{
 				correct = 0
@@ -553,6 +548,7 @@ if(args$findOptimalK){
 					#Setting up unstratified NfoldCV for internal CV
 					indices = 1:ncol(training.data)
 					numPer = floor(ncol(training.data)/args$internalNfoldCV)
+					print(args$internalNfoldCV)
 					rem = ncol(training.data) %% args$internalNfoldCV
 					internal.skips = matrix(NA, nrow=args$NfoldCV*numIter, ncol=numPer+1)
 					for(it in 0:args$internalIterNfoldCV-1){
@@ -569,7 +565,7 @@ if(args$findOptimalK){
 					}
 					internal.skips = data.frame(internal.skips)
 				}		
-					
+				print(internal.skips)
 				for (sub_skip_index in 1:nrow(internal.skips)){
 					
 					
@@ -595,30 +591,20 @@ if(args$findOptimalK){
 					class.2.centroid <- prediction$centroid[2]
 					
 					unrounded.predictions = c()
-					
-					for( i in 1:length(testIndex)){
-						sampleClass = sub.test.class[i]
-						if (pred.classes[i] == sampleClass){
-							correct <- correct + 1;
-						}else{
-							missed <- missed + 1;
-							if(as.numeric(sampleClass) == 1){
-								OneWrong <- OneWrong + 1;
-							}else{
-								TwoWrong <- TwoWrong +1
-							}
-						}
-					 
-						unrounded.prediction <- (prediction$variates[i] - class.1.centroid) / (class.2.centroid - class.1.centroid)
-						mx_label = max(sub.training.classes)
-						mn_label = min(sub.training.classes)
-						unrounded.prediction = unrounded.prediction * (mx_label-mn_label) + mn_label
-						unrounded.predictions = c(unrounded.predictions, unrounded.prediction)
+					for( i in 1:length(sub.test.class)){
+
+					unrounded.prediction <- (prediction$variates[i] - class.1.centroid) / (class.2.centroid - class.1.centroid)
+					mx_label = max(sub.training.classes)
+					mn_label = min(sub.training.classes)
+					unrounded.prediction = unrounded.prediction * (mx_label-mn_label) + mn_label
+					unrounded.predictions = c(unrounded.predictions, unrounded.prediction)
 					}
 
-					sub.class1 = c(sub.class1, unrounded.predictions.1)			
+					sub.class1 = c(sub.class1, unrounded.predictions)			
 					resp = c(resp,  sub.test.class)
-				}
+			}
+			
+			
 				auc_val = as.numeric(ci.auc(roc(resp, sub.class1)))[2] + runif(1,-.00005,.00005) 
 				sub.aucs = c(sub.aucs , auc_val)    
 
@@ -626,6 +612,7 @@ if(args$findOptimalK){
 			}
 		
 		subK = testAmounts[which(sub.aucs == max(sub.aucs))]
+	
 		subK
 	}
 	
@@ -713,32 +700,34 @@ if(args$evaluatePerformance){
 			class.2.centroid <- prediction$centroid[2]
 			
 			unrounded.predictions = c()
-			
+			print(pred.classes)
 			for( i in 1:length(testIndex)){
 				sampleClass = test.classes[i]
 				if (pred.classes[i] == sampleClass){
 					correct <- correct + 1;
 				}else{
 					missed <- missed + 1;
+
 					if(as.numeric(sampleClass) == 1){
 						OneWrong <- OneWrong + 1;
 					}else{
 						TwoWrong <- TwoWrong +1
 					}
+			
 				}
 				
+
 				unrounded.prediction <- (prediction$variates[i] - class.1.centroid) / (class.2.centroid - class.1.centroid)
 				mx_label = max(training.classes)
 				mn_label = min(training.classes)
-				print(unrounded.prediction)
+	
 				unrounded.prediction = unrounded.prediction * (mx_label-mn_label) + mn_label
 				unrounded.predictions = c(unrounded.predictions, unrounded.prediction)
-			}	
+				#unrounded.predictions = c(unrounded.predictions, prediction$variates[i])
+				}	
 			
 			sub.class1 = c(sub.class1, unrounded.predictions)			
 			resp = c(resp,  test.classes)
-			print(sub.class1)
-			print(resp)
 		}	
 		
 		auc_ci = as.numeric(ci.auc(roc(resp, sub.class1)))
@@ -751,13 +740,15 @@ if(args$evaluatePerformance){
 		class1.sens = c()
 		class2.sens = c()
 		for(iter in 0:args$iterNfoldCV-1){
-				iter_skips = skips[iter*args$NfoldCV + 1:iter*args$NfoldCV + args$NfoldCV,]
+				iter_skips = skips[(iter*args$NfoldCV + 1):(iter*args$NfoldCV + args$NfoldCV),]
 				correct <- 0
 				missed <- 0
 				OneWrong <- 0
 				TwoWrong <- 0
-				class1 <- c()
-				class2 <- c()
+				numOne = 0
+				numTwo = 0
+				sub.class1 <- c()
+			  resp = c()
 				write("Evaluating Optimal K.", file=paste(name, ".log", sep=""), append=T)
 				#performStats <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
 				for (skip_index in 1:nrow(iter_skips)){   
@@ -765,10 +756,10 @@ if(args$evaluatePerformance){
 					skips2 = iter_skips[skip_index,]
 					skips2 = skips2[!is.na(skips2)]
 					testIndex = skips2
-					sub.test.data = data.frame(allSNPs[,testIndex])
-					rownames(sub.test.data) = rownames(allSNPs)
-					sub.test.data = na.omit(sub.test.data)
-					keep = rownames(sub.test.data)
+					test.data = data.frame(allSNPs[,testIndex])
+					rownames(test.data) = rownames(allSNPs)
+					test.data = na.omit(test.data)
+					keep = rownames(test.data)
 					
 					training.data = allSNPs[which(rownames(allSNPs) %in% keep),-testIndex]
 					training.classes = classes[-testIndex]
@@ -783,18 +774,10 @@ if(args$evaluatePerformance){
 					class.1.centroid <- prediction$centroid[1]
 					class.2.centroid <- prediction$centroid[2]
 					
-					unrounded.predictions.1 = c()
-					unrounded.predictions.2 = c()
-					
-					pred.classes <- prediction$class$centroids.dist
-					
-					class.1.centroid <- prediction$centroid[1]
-					class.2.centroid <- prediction$centroid[2]
-					
 					unrounded.predictions = c()
 					
 					for( i in 1:length(testIndex)){
-						sampleClass = sub.test.class[i]
+						sampleClass = test.classes[i]
 						if (pred.classes[i] == sampleClass){
 							correct <- correct + 1;
 						}else{
@@ -805,35 +788,40 @@ if(args$evaluatePerformance){
 								TwoWrong <- TwoWrong +1
 							}
 						}
+						if (sampleClass == 1){
+						numOne = numOne +1	
+						}else{
+						numTwo = numTwo +1	
+						}
 						
 						unrounded.prediction <- (prediction$variates[i] - class.1.centroid) / (class.2.centroid - class.1.centroid)
-						mx_label = max(sub.training.classes)
-						mn_label = min(sub.training.classes)
+						mx_label = max(training.classes)
+						mn_label = min(training.classes)
 						unrounded.prediction = unrounded.prediction * (mx_label-mn_label) + mn_label
 						unrounded.predictions = c(unrounded.predictions, unrounded.prediction)
 					}	
 					
-					sub.class1 = c(sub.class1, unrounded.predictions.1)			
-					resp = c(resp,  sub.test.class)
+					sub.class1 = c(sub.class1, unrounded.predictions)			
+					resp = c(resp,  test.classes)
 					
 				}	
 				
 				aucs = c(aucs, as.numeric(ci.auc(roc(resp, sub.class1)))[2])
 				acc = c(acc, correct / (correct + missed))
-				class1.sens = c(class1.sens, (nrow(skips)-OneWrong)/nrow(skips))
-				class2.sens = c(class2.sens, (nrow(skips)-TwoWrong)/nrow(skips))
+				class1.sens = c(class1.sens, (numOne-OneWrong)/numOne)
+				class2.sens = c(class2.sens, (numTwo-TwoWrong)/numTwo)
 
 				
 		}
 		AUC = mean(aucs)
-		std.err = std(aucs)/sqrt(length(aucs))
+		std.err = sd(aucs)/sqrt(length(aucs))
 		auc_ci = c(AUC-1.96*std.err, AUC, AUC+1.96*std.err)
 		acc = mean(acc)
 		class1.sens = mean(class1.sens)
-		class2.sense = mean(class2.sens)
+		class2.sens = mean(class2.sens)
 		
 	}	
-			
+	print("YEAH")
 	write(paste("AUC CI =  ", auc_ci, sep=""), file=paste(name, ".log", sep=""), append=T)
 	
 	accuracy =  correct / (correct + missed)
