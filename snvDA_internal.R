@@ -165,7 +165,7 @@ if(is.null(args$sizeClass1)){
 	
 	write(paste("# of samples in ", args$nameClass2, ": ", num_class_2, sep=""), file=paste(name, ".log", sep=""), append=T)
 	write(paste("Labels: ", paste(class2Labels, collapse=",", sep=""), sep=""), file=paste(name, ".log", sep=""), append=T)
-	classes = c(rep(1,num_class_1), rep(2, num_class_2))
+	classes = c(rep(0,num_class_1), rep(1, num_class_2))
 	}
 	
 
@@ -677,8 +677,8 @@ if(args$evaluatePerformance){
 		missed <- 0
 		OneWrong <- 0
 		TwoWrong <- 0
-		class1 <- c()
-		class2 <- c()
+		sub.class1 = c()
+		resp = c()
 		write("Evaluating Optimal K.", file=paste(name, ".log", sep=""), append=T)
 		#performStats <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
 		for (skip_index in 1:nrow(skips)){   
@@ -686,10 +686,10 @@ if(args$evaluatePerformance){
 			skips2 = skips[skip_index,]
 			skips2 = skips2[!is.na(skips2)]
 			testIndex = skips2
-			sub.test.data = data.frame(allSNPs[,testIndex])
-			rownames(sub.test.data) = rownames(allSNPs)
-			sub.test.data = na.omit(sub.test.data)
-			keep = rownames(sub.test.data)
+			test.data = data.frame(allSNPs[,testIndex])
+			rownames(test.data) = rownames(allSNPs)
+			test.data = na.omit(test.data)
+			keep = rownames(test.data)
 			
 			training.data = allSNPs[which(rownames(allSNPs) %in% keep),-testIndex]
 			training.classes = classes[-testIndex]
@@ -715,7 +715,7 @@ if(args$evaluatePerformance){
 			unrounded.predictions = c()
 			
 			for( i in 1:length(testIndex)){
-				sampleClass = sub.test.class[i]
+				sampleClass = test.classes[i]
 				if (pred.classes[i] == sampleClass){
 					correct <- correct + 1;
 				}else{
@@ -728,15 +728,17 @@ if(args$evaluatePerformance){
 				}
 				
 				unrounded.prediction <- (prediction$variates[i] - class.1.centroid) / (class.2.centroid - class.1.centroid)
-				mx_label = max(sub.training.classes)
-				mn_label = min(sub.training.classes)
+				mx_label = max(training.classes)
+				mn_label = min(training.classes)
+				print(unrounded.prediction)
 				unrounded.prediction = unrounded.prediction * (mx_label-mn_label) + mn_label
 				unrounded.predictions = c(unrounded.predictions, unrounded.prediction)
 			}	
 			
-			sub.class1 = c(sub.class1, unrounded.predictions.1)			
-			resp = c(resp,  sub.test.class)
-			
+			sub.class1 = c(sub.class1, unrounded.predictions)			
+			resp = c(resp,  test.classes)
+			print(sub.class1)
+			print(resp)
 		}	
 		
 		auc_ci = as.numeric(ci.auc(roc(resp, sub.class1)))
@@ -948,10 +950,10 @@ if(args$permutationTests){
 		for (skip_index in 1:nrow(skips)){   
 			testIndex = skips[skip_index,]
 		
-			sub.test.data = data.frame(allSNPs[,testIndex])
-			rownames(sub.test.data) = rownames(allSNPs)
-			sub.test.data = na.omit(sub.test.data)
-			keep = rownames(sub.test.data)
+			test.data = data.frame(allSNPs[,testIndex])
+			rownames(test.data) = rownames(allSNPs)
+			test.data = na.omit(test.data)
+			keep = rownames(test.data)
 			
 			training.data = allSNPs[which(rownames(allSNPs) %in% keep),-testIndex]
 			training.classes = classes[-testIndex]
@@ -977,7 +979,7 @@ if(args$permutationTests){
 			unrounded.predictions = c()
 			
 			for( i in 1:length(testIndex)){
-				sampleClass = sub.test.class[i]
+				sampleClass = test.classes[i]
 				if (pred.classes[i] == sampleClass){
 					correct <- correct + 1;
 				}else{
@@ -996,7 +998,7 @@ if(args$permutationTests){
 				unrounded.predictions = c(unrounded.predictions, unrounded.prediction)
 			}
 			sub.class1 = c(sub.class1, unrounded.predictions)
-			resp = c(sub.class1, sub.test.class)
+			resp = c(sub.class1, test.classes)
 		}	
 		auc_ci = as.numeric(ci.auc(roc(resp, sub.class1)))
 		auc_ci[2]
