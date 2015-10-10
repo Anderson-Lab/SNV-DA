@@ -998,7 +998,7 @@ if(args$permutationTests){
 				unrounded.predictions = c(unrounded.predictions, unrounded.prediction)
 			}
 			sub.class1 = c(sub.class1, unrounded.predictions)
-			resp = c(sub.class1, test.classes)
+			resp = c(resp, test.classes)
 		}	
 		auc_ci = as.numeric(ci.auc(roc(resp, sub.class1)))
 		auc_ci[2]
