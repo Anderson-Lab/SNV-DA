@@ -992,8 +992,8 @@ if(args$permutationTests){
 				}
 				
 				unrounded.prediction <- (prediction$variates[i] - class.1.centroid) / (class.2.centroid - class.1.centroid)
-				mx_label = max(sub.training.classes)
-				mn_label = min(sub.training.classes)
+				mx_label = max(training.classes)
+				mn_label = min(training.classes)
 				unrounded.prediction = unrounded.prediction * (mx_label-mn_label) + mn_label
 				unrounded.predictions = c(unrounded.predictions, unrounded.prediction)
 			}
