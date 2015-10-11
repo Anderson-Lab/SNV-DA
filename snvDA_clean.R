@@ -546,9 +546,9 @@ if(args$findOptimalK){
 	write(paste("Testing these values of K:", paste(testAmounts, sep=",",collapse=','), sep=" "), file=paste(name, ".log", sep=""), append=T)
 	
 
-	#bestK <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
-	bestK = c()
-	for(skip_index in 1:nrow(skips)){
+	bestK <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
+	#bestK = c()
+	#for(skip_index in 1:nrow(skips)){
 	 	
 	  skips2 = skips[skip_index,]
 	  skips2 = skips2[!is.na(skips2)]
@@ -641,7 +641,7 @@ if(args$findOptimalK){
 		subK = testAmounts[which(sub.aucs == max(sub.aucs))]
 		subK
  	
- 		bestK = c(bestK, subK)
+ 		#bestK = c(bestK, subK)
 	}
 	
 	bestK = c(as.numeric(unlist(bestK)))
