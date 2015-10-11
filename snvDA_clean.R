@@ -126,17 +126,18 @@ get_predictions <- function(skips,training,tmp.classes, K_hat){
 		
 		num_class_1 = length(training.classes[which(training.classes == 1)])
 		num_class_2 = length(training.classes) - num_class_1
-		
+
 		training.data.1 = training.data[,1:num_class_1]
-		training.data.2 = training.data[,num_class_2:ncol(training.data)]
-		
+		training.data.2 = training.data[,(num_class_1+1):ncol(training.data)]
+
 		###Removes any features where either group has all NAs (non-informative features)
 		training.data = training.data[which(rowSums(is.na(training.data.1)) < num_class_1 & rowSums(is.na(training.data.2)) < num_class_2),]
+
 
 		splsda.model <- tryCatch(splsda(t(training.data), factor(t(training.classes)), ncomp=1, keepX=K_hat),  error = function(e) {NULL})
  		if (is.null(splsda.model)){
 		}
-	
+
 		#Only keep test.data of features that are still included in model
 		test.data = as.data.frame(test.data[which(rownames(test.data) %in% colnames(splsda.model$X)),])
 
@@ -145,19 +146,21 @@ get_predictions <- function(skips,training,tmp.classes, K_hat){
 		class2_na_rows = splsda.model$X[(num_class_1+1):nrow(splsda.model$X),]
 		##Get mean of means for imputations
 		imputes = rowMeans(cbind(colMeans(class1_na_rows, na.rm=T), colMeans(class2_na_rows, na.rm=T)))
-		
+
 		test.data.impute = test.data
-		
+
 		##For each sample in the test set, fill the NA values with imputed values from the training set (mean of means)
 		for(samp in 1:ncol(test.data)){
 			nas = which(is.na(test.data[,samp]))
 			test.data.impute[nas, samp] = as.numeric(imputes[nas])
 		}
 		
-		prediction <- tryCatch(predict(splsda.model, t(test.data.impute)),  error = function(e) {NULL})
-		if (is.null(prediction)){
-			next
-		}
+
+
+ 		prediction <- tryCatch(predict(splsda.model, t(test.data.impute)),  error = function(e) {NULL})
+ 		if (is.null(prediction)){
+ 			next
+ 		}
 		
 		pred.classes <- prediction$class$centroids.dist
 		class.1.centroid <- prediction$centroid[1]
@@ -543,9 +546,9 @@ if(args$findOptimalK){
 	write(paste("Testing these values of K:", paste(testAmounts, sep=",",collapse=','), sep=" "), file=paste(name, ".log", sep=""), append=T)
 	
 
-	bestK <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
-	#bestK = c()
-	#for(skip_index in 1:nrow(skips)){
+	#bestK <- foreach (skip_index=1:nrow(skips), .packages=c('mixOmics', 'pROC')) %dopar% {
+	bestK = c()
+	for(skip_index in 1:nrow(skips)){
 	 	
 	  skips2 = skips[skip_index,]
 	  skips2 = skips2[!is.na(skips2)]
@@ -558,7 +561,7 @@ if(args$findOptimalK){
 		sub.aucs = c()
 
 		for (numFeatures in testAmounts){
-			
+
 			if(is.null(args$internalNfoldCV)){
 			
 				results = get_predictions(as.data.frame(c(1:ncol(training.data))), training.data, training.data.classes, numFeatures)
@@ -579,32 +582,32 @@ if(args$findOptimalK){
 					rem1 = sub.num_class_1 %% args$internalNfoldCV
 					
 					rem2 = (ncol(training.data.classes)-sub.num_class_1) %% args$internalNfoldCV
-					numIter = 1
-					skips = matrix(NA, nrow=args$internalNfoldCV*numIter, ncol=(numPer*2)+2)
-					for(it in 0:numIter-1){
-						rando1 = sample(1:sub.num_class_1)
-						rando2 = sample((sub.num_class_1+1):ncol(training.data))
+	
+					skips = matrix(NA, nrow=args$internalNfoldCV, ncol=(numPer*2)+2)
+					it = 0
+					rando1 = sample(1:sub.num_class_1)
+					rando2 = sample((sub.num_class_1+1):ncol(training.data))
+					
+					for(nf in 1:args$internalNfoldCV){
 						
-						for(nf in 1:args$internalNfoldCV){
+						if(nf <= rem1){
 							
-							if(nf <= rem1){
-								
-								internal.skips[((it*args$internalNfoldCV)+nf),1:(numPer+1)] = rando1[((numPer+1)*nf-numPer):(nf*(numPer+1))]
-							}else{
-								internal.skips[((it*args$internalNfoldCV)+nf),1:(numPer+1)] = c(rando1[(numPer*nf-numPer+1+rem1):(nf*(numPer)+rem1)], NA)
-							}
-							
-							if(nf <= rem2){
-								
-								internal.skips[((it*args$internalNfoldCV)+nf),(numPer+2):((numPer*2)+2)] = rando2[((numPer+1)*nf-numPer):(nf*(numPer+1))]
-								
-							}else{
-								internal.skips[((it*args$internalNfoldCV)+nf),(numPer+2):((numPer*2)+2)] = c(rando2[(numPer*nf-numPer+1+rem2):(nf*(numPer)+rem2)], NA)
-							}
-							
+							internal.skips[((it*args$internalNfoldCV)+nf),1:(numPer+1)] = rando1[((numPer+1)*nf-numPer):(nf*(numPer+1))]
+						}else{
+							internal.skips[((it*args$internalNfoldCV)+nf),1:(numPer+1)] = c(rando1[(numPer*nf-numPer+1+rem1):(nf*(numPer)+rem1)], NA)
 						}
+						
+						if(nf <= rem2){
+							
+							internal.skips[((it*args$internalNfoldCV)+nf),(numPer+2):((numPer*2)+2)] = rando2[((numPer+1)*nf-numPer):(nf*(numPer+1))]
+							
+						}else{
+							internal.skips[((it*args$internalNfoldCV)+nf),(numPer+2):((numPer*2)+2)] = c(rando2[(numPer*nf-numPer+1+rem2):(nf*(numPer)+rem2)], NA)
+						}
+						
 					}
-					print(internal.skips)
+					
+				
 					internal.skips = data.frame(internal.skips)
 		
 				}else{
@@ -612,24 +615,23 @@ if(args$findOptimalK){
 					#Setting up unstratified NfoldCV for internal CV
 					indices = 1:ncol(training.data)
 					numPer = floor(ncol(training.data)/args$internalNfoldCV)
-					print(args$internalNfoldCV)
+				
 					rem = ncol(training.data) %% args$internalNfoldCV
-					internal.skips = matrix(NA, nrow=args$NfoldCV*numIter, ncol=numPer+1)
-					for(it in 0:args$internalIterNfoldCV-1){
-						rando = sample(1:ncol(training.data))
-						for(nf in 1:args$internalNfoldCV){
-							if(nf <= rem){
-								
-								internal.skips[((it*args$internalNfoldCV)+nf),] = rando[((numPer+1)*nf-numPer):(nf*(numPer+1))]
-								
-							}else{
-								internal.skips[((it*args$internalNfoldCV)+nf),] = c(rando[(numPer*nf-numPer+1+rem):(nf*(numPer)+rem)], NA)
-							}
+					internal.skips = matrix(NA, nrow=args$NfoldCV, ncol=numPer+1)
+					it = 0
+					rando = sample(1:ncol(training.data))
+					for(nf in 1:args$internalNfoldCV){
+						if(nf <= rem){
+							
+							internal.skips[((it*args$internalNfoldCV)+nf),] = rando[((numPer+1)*nf-numPer):(nf*(numPer+1))]
+							
+						}else{
+							internal.skips[((it*args$internalNfoldCV)+nf),] = c(rando[(numPer*nf-numPer+1+rem):(nf*(numPer)+rem)], NA)
 						}
 					}
 					internal.skips = data.frame(internal.skips)
 				}		
-				print("!!!!")
+
 				results = get_predictions(internal.skips, training.data, training.data.classes, numFeatures)
 				sub.aucs = c(sub.aucs , results$AUC[2])  
 				
@@ -638,8 +640,8 @@ if(args$findOptimalK){
 		
 		subK = testAmounts[which(sub.aucs == max(sub.aucs))]
 		subK
-#  		print(subK)
-#  		bestK = c(bestK, subK)
+ 	
+ 		bestK = c(bestK, subK)
 	}
 	
 	bestK = c(as.numeric(unlist(bestK)))
@@ -679,7 +681,7 @@ if(args$findOptimalK){
 		}
 }
 
-print(optK)
+
 
 write(paste("Optimal K: ", optK, sep=""), file=paste(name, ".log", sep=""), append=T)
 
@@ -695,15 +697,14 @@ if(args$evaluatePerformance){
 		class1.sens = results$Sens.1
 		class2.sens = results$Sens.2
 	}else{
-		print("111")
+	
 		aucs = c()
 		acc = c()
 		class1.sens = c()
 		class2.sens = c()
-		print(args$iterNfoldCV)
+
 		for(iter in 0:(args$iterNfoldCV-1)){
-				print(iter)
-				print("2222")
+	
 				iter_skips = skips[(iter*args$NfoldCV + 1):(iter*args$NfoldCV + args$NfoldCV),]
 				results = get_predictions(iter_skips, allSNPs, classes, optK)
 				
@@ -815,18 +816,88 @@ if(args$permutationTests){
 		compare_auc = auc_ci[2]
 	}
 
-	numIter = as.numeric(args$permIter)
-	write(paste("Running ",numIter," permuation tests.",sep=""),file=paste(name, ".log", sep=""), append=T)	
+	permIter = as.numeric(args$permIter)
+	write(paste("Running ",permIter," permuation tests.",sep=""),file=paste(name, ".log", sep=""), append=T)	
 
-	ls <- foreach (iter=1:numIter, .packages=c('mixOmics','pROC')) %dopar% {
+	ls <- foreach (iter=1:permIter, .packages=c('mixOmics','pROC')) %dopar% {
 		#for(iter in 1:numIter){
 		write(paste("Permutation iteration: ",iter, sep=""), file=paste(name, ".log", sep=""), append=T)
+		if(is.null(args$NfoldCV)){
 		results = get_predictions(skips, allSNPs[, sample(c(seq(1,ncol(allSNPs),1)))], classes, optK)
 		results$AUC[2]
+		}else{
+			
+			allSNPs_permute = allSNPs[, sample(c(seq(1,ncol(allSNPs),1)))]
+			if(!args$unstratified){
+				
+				#Setting up stratified NfoldCV for internal CV
+				indices = 1:ncol(allSNPs_permute)
+				num_class_1 = length(which(classes == 1))
+				numPer = floor(min(num_class_1, ncol(allSNPs_permute)-num_class_1))/args$NfoldCV
+				if(numPer == 0){
+					stop("Not enough samples in one of the groups for internal N-fold CV")	
+				}
+				rem1 = num_class_1 %% args$NfoldCV
+				
+				rem2 = (ncol(classes)-num_class_1) %%  args$NfoldCV
+			
+				skips = matrix(NA, nrow=args$NfoldCV, ncol=(numPer*2)+2)
+				it = 0
+				rando1 = sample(1:num_class_1)
+				rando2 = sample((num_class_1+1):ncol(training.data))
+				
+				for(nf in 1:args$NfoldCV){
+					
+					if(nf <= rem1){
+						
+						internal.skips[((it*args$NfoldCV)+nf),1:(numPer+1)] = rando1[((numPer+1)*nf-numPer):(nf*(numPer+1))]
+					}else{
+						internal.skips[((it*args$NfoldCV)+nf),1:(numPer+1)] = c(rando1[(numPer*nf-numPer+1+rem1):(nf*(numPer)+rem1)], NA)
+					}
+					
+					if(nf <= rem2){
+						
+						internal.skips[((it*args$lNfoldCV)+nf),(numPer+2):((numPer*2)+2)] = rando2[((numPer+1)*nf-numPer):(nf*(numPer+1))]
+						
+					}else{
+						internal.skips[((it*args$NfoldCV)+nf),(numPer+2):((numPer*2)+2)] = c(rando2[(numPer*nf-numPer+1+rem2):(nf*(numPer)+rem2)], NA)
+					}
+					
+				}
+		
+				internal.skips = data.frame(internal.skips)
+				
+			}else{
+				
+				#Setting up unstratified NfoldCV for internal CV
+				indices = 1:ncol(allSNPs_permute)
+				numPer = floor(ncol(allSNPs_permute)/args$NfoldCV)
+				
+				rem = ncol(allSNPs_permute) %% args$NfoldCV
+				internal.skips = matrix(NA, nrow=args$NfoldCV, ncol=numPer+1)
+				it = 0
+					rando = sample(1:ncol(allSNPs_permute))
+					for(nf in 1:args$NfoldCV){
+						if(nf <= rem){
+		
+							internal.skips[((it*args$NfoldCV)+nf),] = rando[((numPer+1)*nf-numPer):(nf*(numPer+1))]
+							
+						}else{
+							internal.skips[((it*args$NfoldCV)+nf),] = c(rando[(numPer*nf-numPer+1+rem):(nf*(numPer)+rem)], NA)
+						}
+					}
+				
+				internal.skips = data.frame(internal.skips)
+			}		
+			results = get_predictions(internal.skips, allSNPs_permute, classes, optK)
+			write(results$AUC[2], ncol=1, file=paste(name, "_permutation_AUCs.txt", sep=""), sep="\t", append=T)
+			results$AUC[2]
+			
+		}
 	}
 
 	aucs = unlist(ls)
-	write(unlist(ls), ncol=1, file=paste(name, "_permutation_AUCs.txt", sep=""), sep="\t")
+
 	p_val = length(which(aucs >= compare_auc))/length(aucs)
 	write(paste("Perm p-value: ",p_val, sep=""), file=paste(name, ".log", sep=""), append=T)
 	write(p_val, ncol=1, file=paste(name,"_p_val.txt", sep=""),sep="\t")
