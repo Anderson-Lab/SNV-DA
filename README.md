@@ -20,6 +20,7 @@ The script has several parameters that allows the user to design their own analy
 Happy hunting!
 
 Options:
+
 	-O, --findOptimalK
 		If flagged, SNV-DA will run nest cross-validations to determine optimal K.
 
@@ -64,7 +65,7 @@ Options:
 
 	-E EVERYKTH, --everyKth=EVERYKTH
 		Specifies every Nth K tested.
-Or use:
+	Or use:
 
 	-R RANGE, --range=RANGE
 		A comma separated list of K's to be added to the Ks tested, e.g. 5,10,15,20,25,50,75,100,250,300.
