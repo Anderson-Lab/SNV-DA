@@ -93,9 +93,7 @@ make_option(c("-a", "--AreaUnderCurve"), type="double", default=NULL,
 						help="Performance of true model. Compared to permuted models when --permutationTests are run. If unflagged, value is determined by --evaluatePerformance"),
 
 make_option(c("-F", "--produceFigures"), action="store_true", default=F,
-						help="If flagged, allele fraction box plots, heatmaps, and kernal density figures are produced."),
-make_option(c("-f", "--numNAs2"), type="integer", default=NULL,
-						help="Limit SNVs to those that have at most X amount of samples with 'NA' values (default=0).")
+						help="If flagged, allele fraction box plots, heatmaps, and kernal density figures are produced.")
 
 )
 
@@ -586,7 +584,6 @@ if(args$findOptimalK && !args$predictTestSet){
 	}
 	
 	bestK = c(as.numeric(unlist(bestK)))
-	print(bestK)
 	d = density(as.numeric(bestK))
 	optK = round(d$x[which.max(d$y)])
 	write(t(c(bestK)), ncol=1, file=paste(name, "_iteration_optimals.txt", sep=""), sep="\t")
@@ -695,9 +692,7 @@ if(args$evaluatePerformance && !args$predictTestSet){
 	topSNVs = snvs[order(abs(as.numeric(snvs[,2])), decreasing = T),]
 	
 	rownames(topSNVs) = topSNVs[,1]
-	print(head(topSNVs))
 	topSNVs[,3] = names[rownames(topSNVs),2]
-	print(head(topSNVs))
 	write(t(topSNVs), ncol=3, file=paste(name, "_top_SNVs.txt", sep=""), sep="\t")
 	write(t(topSNVs), ncol=3, file=paste(name, "_top_SNVs.csv", sep=""), sep=",")
 	
