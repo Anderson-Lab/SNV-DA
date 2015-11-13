@@ -93,7 +93,10 @@ make_option(c("-a", "--AreaUnderCurve"), type="double", default=NULL,
 						help="Performance of true model. Compared to permuted models when --permutationTests are run. If unflagged, value is determined by --evaluatePerformance"),
 
 make_option(c("-F", "--produceFigures"), action="store_true", default=F,
-						help="If flagged, allele fraction box plots, heatmaps, and kernal density figures are produced.")
+						help="If flagged, allele fraction box plots, heatmaps, and kernal density figures are produced."),
+make_option(c("-f", "--numNAs2"), type="integer", default=NULL,
+						help="Limit SNVs to those that have at most X amount of samples with 'NA' values (default=0).")
+
 )
 
 args <- parse_args(OptionParser(description=help_text, option=option_list))
@@ -131,7 +134,10 @@ get_predictions <- function(skips,training,tmp.classes, K_hat){
 
 		###Removes any features where either group has all NAs (non-informative features)
 		training.data = training.data[which(rowSums(is.na(training.data.1)) < num_class_1 & rowSums(is.na(training.data.2)) < num_class_2),]
-
+		
+		test.data = test.data[which(rowSums(is.na(test.data)) != ncol(test.data)),]
+		
+		training.data = training.data[which(rownames(training.data) %in% rownames(test.data)),]
 
 		splsda.model <- tryCatch(splsda(t(training.data), factor(t(training.classes)), ncomp=1, keepX=K_hat),  error = function(e) {NULL})
  		if (is.null(splsda.model)){
@@ -238,7 +244,7 @@ rownames(allSNPs) = names[,1]
 totalNum = nrow(allSNPs)
 
 ##Determine rows that have X non-zero feature values
-NAs = rowSums(is.na(allSNPs))
+
 if(is.null(args$numNAs)){
 	numNAs = ncol(allSNPs)
 }else{numNAs = args$numNAs}
@@ -295,7 +301,7 @@ if(!(is.null(args$exclude))){
 if (    !(is.null(args$include))  |     !(is.null(args$exclude))   ){
         
 	##If include is flagged...
-	if(!(is.null(args$include))){
+	if(!(is.null(c))){
 		write(paste("Only including SNVs whose type has substring: ", args$include, sep=""), file=paste(name, ".log", sep=""), append=T)
 		#Splits the string by "," to identify all SNVs that are included
 		types = strsplit(args$include, ",")[[1]]
@@ -337,21 +343,27 @@ if(args$predictTestSet){
 	training.data = allSNPs[which(rownames(allSNPs) %in% typed ),]
 	total_classes = classes
 	print(paste("Predicting classes of test set with optimal K =", args$optimalK))
-	
+	num_class_1 = args$sizeClass1
+	num_class_2 = ncol(allSNPs)-num_class_1
 	training.data.1 = training.data[,1:num_class_1]
 	training.data.2 = training.data[,(num_class_1+1):ncol(training.data)]
 	
 	training.data = training.data[which(rowSums(is.na(training.data.1)) < num_class_1 & rowSums(is.na(training.data.2)) < num_class_2),]
-	splsda.model <- splsda(t(training.data), factor(t(total_classes)), ncomp=1, keepX=args$optimalK)
-	SNVs = splsda.model$loadings$X
-	all_snv_names = rownames(SNVs)	
-	training.data = training.data[all_snv_names,]
-	
 	testSNPs <- read.csv(args$testMatrix, header=T, stringsAsFactors=F,sep=",",  na.strings = "Na")
 	names <- testSNPs[,c(1,2)]
 	rownames(names) = names[,1]
 	suppressWarnings(testSNPs <- data.matrix(testSNPs[,c(-1,-2)]))
 	rownames(testSNPs) = names[,1]
+
+	testSNPs = testSNPs[which(rowSums(is.na(testSNPs)) <= args$numNAs),]
+
+	training.data = training.data[which(rownames(training.data) %in% rownames(testSNPs)),]
+	
+	
+	splsda.model <- splsda(t(training.data), factor(t(total_classes)), ncomp=1, keepX=args$optimalK)
+	SNVs = splsda.model$loadings$X
+	all_snv_names = rownames(SNVs)	
+	training.data = training.data[all_snv_names,]
 	
 	subtestSNPs = testSNPs[all_snv_names,]
 
@@ -359,7 +371,6 @@ if(args$predictTestSet){
 	numTest2 = length(colnames(subtestSNPs)) - numTest1
 	test.classes = c(rep(1, numTest1), rep(2, numTest2))
 
-	
 	class1_na_rows = training.data[,1:num_class_1]
 	class2_na_rows = training.data[,(num_class_1+1):ncol(training.data)]
 	
@@ -375,6 +386,9 @@ if(args$predictTestSet){
 
 	prediction = predict(splsda.model, t(subtestSNPs))
 	pred.classes <- prediction$class$centroids.dist
+	output = t(cbind(colnames(testSNPs), pred.classes))
+
+	write.table(output, file=paste(args$studyName,"_",args$include,"_ext_pred_results.txt", sep=""), col.names=F, row.names=F,quote=F, append=T)
 	class.1.centroid <- prediction$centroid[1]
 	class.2.centroid <- prediction$centroid[2]
 	
@@ -417,14 +431,20 @@ if(args$predictTestSet){
 	ACC = correct / (correct + missed)
 	Sens.1 = (numOne-OneWrong)/numOne
 	Sens.2 = (numTwo-TwoWrong)/numTwo
+	write(paste("testset AUC: ", AUC), file=paste(args$studyName,"_",args$include,"_ext_pred_results.txt", sep=""), append=T)
+	write(paste("testset predictive accuracy: ", ACC), file=paste(args$studyName,"_",args$include,"_ext_pred_results.txt", sep=""), append=T)
+	write(paste("testset class 1 accuracy: ", Sens.1), file=paste(args$studyName,"_",args$include,"_ext_pred_results.txt", sep=""),  append=T)
+	write(paste("testset class 2 accuracy: ", Sens.2), file=paste(args$studyName,"_",args$include,"_ext_pred_results.txt", sep=""),  append=T)
+	
 	print(paste("testset AUC: ", AUC))
 	print(paste("testset predictive accuracy: ", ACC))
 	print(paste("testset class 1 accuracy: ", Sens.1))
 	print(paste("testset class 2 accuracy: ", Sens.2))
-	stop
+	
 }
-
+if(!args$predictTestSet){
 if(is.null(args$NfoldCV)){
+
 	maxIterations = choose(ncol(allSNPs), args$numOut) 
 	
 	#Set numIter to the minimum of the max iterations and user supplied amount
@@ -458,6 +478,7 @@ if(is.null(args$NfoldCV)){
 		skips = t(combos)
 	}
 }else{
+
 	#Setting up unstratified N-fold cross-validations and storing the indexes of a sample in the skips matrix
 	indices = 1:ncol(allSNPs)
 	numPer = floor(ncol(allSNPs)/args$NfoldCV)
@@ -480,13 +501,13 @@ if(is.null(args$NfoldCV)){
 	
 }
 		
-
+}
 
 # write(paste("Maximum number of CV iterations: ", maxIterations, sep=""), file=paste(name, ".log", sep=""), append=T)
 
 
-if(args$findOptimalK){
-	print("?")
+if(args$findOptimalK && !args$predictTestSet){
+
 	#If a list of values of K are not provided
 	if(is.null(args$range)){
 		#Sees that the range provided makes sense
@@ -559,13 +580,13 @@ if(args$findOptimalK){
 			}
 		
 		subK = testAmounts[which(sub.aucs == max(sub.aucs))]
-		subK
- 	
+		write(subK, file=paste(name, "_optK_iteration_optimals.txt", sep=""), sep="\t", append=T)
  		#bestK = c(bestK, subK)
+ 		subK
 	}
 	
 	bestK = c(as.numeric(unlist(bestK)))
-
+	print(bestK)
 	d = density(as.numeric(bestK))
 	optK = round(d$x[which.max(d$y)])
 	write(t(c(bestK)), ncol=1, file=paste(name, "_iteration_optimals.txt", sep=""), sep="\t")
@@ -607,7 +628,7 @@ write(paste("Optimal K: ", optK, sep=""), file=paste(name, ".log", sep=""), appe
 
 
 ####Final CV using the best value of K
-if(args$evaluatePerformance){
+if(args$evaluatePerformance && !args$predictTestSet){
 	if(args$iterNfoldCV == 1){
 		
 		results = get_predictions(skips, allSNPs, classes, optK)
@@ -731,7 +752,7 @@ if(args$evaluatePerformance){
 }
 
 	
-if(args$getSNVs){	
+if(args$getSNVs && !args$predictTestSet){	
 	allData = allSNPs[which(rownames(allSNPs) %in% typed ),]
 	total_classes = classes
 	splsda.model <- splsda(t(allData), factor(t(total_classes)), ncomp=1, keepX=optK)
@@ -801,7 +822,7 @@ if(args$getSNVs){
 
 
 
-if(args$permutationTests){
+if(args$permutationTests && !args$predictTestSet){
 
 	if(!(args$findOptimalK) & is.null(args$optimalK)){
 		stop("Need to provide optimal K or run findOptimalK")	
@@ -819,7 +840,7 @@ if(args$permutationTests){
 	write(paste("Running ",permIter," permuation tests.",sep=""),file=paste(name, ".log", sep=""), append=T)	
 
 	ls <- foreach (iter=1:permIter, .packages=c('mixOmics','pROC')) %dopar% {
-		#for(iter in 1:numIter){
+	#	for(iter in 1:numIter){
 		write(paste("Permutation iteration: ",iter, sep=""), file=paste(name, ".log", sep=""), append=T)
 		if(is.null(args$NfoldCV)){
 		results = get_predictions(skips, allSNPs[, sample(c(seq(1,ncol(allSNPs),1)))], classes, optK)
@@ -827,67 +848,26 @@ if(args$permutationTests){
 		}else{
 			
 			allSNPs_permute = allSNPs[, sample(c(seq(1,ncol(allSNPs),1)))]
-			if(args$stratified){
-				
-				#Setting up stratified NfoldCV for internal CV
-				indices = 1:ncol(allSNPs_permute)
-				num_class_1 = length(which(classes == 1))
-				numPer = floor(min(num_class_1, ncol(allSNPs_permute)-num_class_1))/args$NfoldCV
-				if(numPer == 0){
-					stop("Not enough samples in one of the groups for internal N-fold CV")	
-				}
-				rem1 = num_class_1 %% args$NfoldCV
-				
-				rem2 = (ncol(classes)-num_class_1) %%  args$NfoldCV
-			
-				skips = matrix(NA, nrow=args$NfoldCV, ncol=(numPer*2)+2)
-				it = 0
-				rando1 = sample(1:num_class_1)
-				rando2 = sample((num_class_1+1):ncol(allSNPs))
-				internal.skips = matrix(NA, nrow=args$internalNfoldCV, ncol=(numPer*2)+2)
-				for(nf in 1:args$NfoldCV){
-					
-					if(nf <= rem1){
-						
-						internal.skips[((it*args$NfoldCV)+nf),1:(numPer+1)] = rando1[((numPer+1)*nf-numPer):(nf*(numPer+1))]
-					}else{
-						internal.skips[((it*args$NfoldCV)+nf),1:(numPer+1)] = c(rando1[(numPer*nf-numPer+1+rem1):(nf*(numPer)+rem1)], NA)
-					}
-					
-					if(nf <= rem2){
-						
-						internal.skips[((it*args$lNfoldCV)+nf),(numPer+2):((numPer*2)+2)] = rando2[((numPer+1)*nf-numPer):(nf*(numPer+1))]
-						
-					}else{
-						internal.skips[((it*args$NfoldCV)+nf),(numPer+2):((numPer*2)+2)] = c(rando2[(numPer*nf-numPer+1+rem2):(nf*(numPer)+rem2)], NA)
-					}
-					
-				}
-		
-				internal.skips = data.frame(internal.skips)
-				
-			}else{
-				
 				#Setting up unstratified NfoldCV for internal CV
-				indices = 1:ncol(allSNPs_permute)
-				numPer = floor(ncol(allSNPs_permute)/args$NfoldCV)
+			indices = 1:ncol(allSNPs_permute)
+			numPer = floor(ncol(allSNPs_permute)/args$NfoldCV)
+			
+			rem = ncol(allSNPs_permute) %% args$NfoldCV
+			internal.skips = matrix(NA, nrow=args$NfoldCV, ncol=numPer+1)
+			it = 0
+			rando = sample(1:ncol(allSNPs_permute))
+			for(nf in 1:args$NfoldCV){
+				if(nf <= rem){
+					
+					internal.skips[((it*args$NfoldCV)+nf),] = rando[((numPer+1)*nf-numPer):(nf*(numPer+1))]
+					
+				}else{
+					internal.skips[((it*args$NfoldCV)+nf),] = c(rando[(numPer*nf-numPer+1+rem):(nf*(numPer)+rem)], NA)
+				}
+			}
+			
+			internal.skips = data.frame(internal.skips)
 				
-				rem = ncol(allSNPs_permute) %% args$NfoldCV
-				internal.skips = matrix(NA, nrow=args$NfoldCV, ncol=numPer+1)
-				it = 0
-					rando = sample(1:ncol(allSNPs_permute))
-					for(nf in 1:args$NfoldCV){
-						if(nf <= rem){
-		
-							internal.skips[((it*args$NfoldCV)+nf),] = rando[((numPer+1)*nf-numPer):(nf*(numPer+1))]
-							
-						}else{
-							internal.skips[((it*args$NfoldCV)+nf),] = c(rando[(numPer*nf-numPer+1+rem):(nf*(numPer)+rem)], NA)
-						}
-					}
-				
-				internal.skips = data.frame(internal.skips)
-			}		
 			results = get_predictions(internal.skips, allSNPs_permute, classes, optK)
 			write(results$AUC[2], ncol=1, file=paste(name, "_permutation_AUCs.txt", sep=""), sep="\t", append=T)
 			results$AUC[2]
