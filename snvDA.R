@@ -65,6 +65,10 @@ make_option(c("-Z", "--numNonZeros"), type="integer", default=3,
 make_option(c("-N", "--numNAs"), type="integer", default=NULL,
 								 help="Limit SNVs to those that have at most X amount of samples with 'NA' values (default=0)."),
 
+make_option(c("-n", "--NonNormImpute"), action="store_true", default=F,
+						help="If flagged, NAs are imputed with non-standardized values."),
+
+
 make_option(c("-G", "--include"), type="character", default=NULL,
 								 help="SNVs with this substring are included, e.g. \"exonic\" for nonsynonymous and synonymous exonic SNVs"),
 
@@ -146,13 +150,20 @@ get_predictions <- function(skips,training,tmp.classes, K_hat){
 		test.data = as.data.frame(test.data[which(rownames(test.data) %in% colnames(splsda.model$X)),])
   	training.data = as.data.frame(training.data[which(rownames(training.data) %in% colnames(splsda.model$X)),])
 		
+  	#Use non-normalized values for imputation
+  	if(args$NonNormImpute){
 		##Get the training data that correspond to features that NA values in the test set
 		class1_na_rows = training.data[,1:num_class_1]
 		class2_na_rows = training.data[,(num_class_1+1):ncol(training.data)]
 
-		##Get mean of means for imputations
-		imputes = rowMeans(cbind(rowMeans(class1_na_rows, na.rm=T), rowMeans(class2_na_rows, na.rm=T)))
-	
+  	}else{
+  		
+  		class1_na_rows = t(splsda.model$X[1:num_class_1,])
+  		class2_na_rows = t(splsda.model$X[(num_class_1+1):ncol(training.data),])
+  		
+  	}
+  	##Get mean of means for imputations
+  	imputes = rowMeans(cbind(rowMeans(class1_na_rows, na.rm=T), rowMeans(class2_na_rows, na.rm=T)))
 		test.data.impute = test.data
 
 		##For each sample in the test set, fill the NA values with imputed values from the training set (mean of means)
