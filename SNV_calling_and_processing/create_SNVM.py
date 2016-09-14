@@ -54,7 +54,7 @@ for sample in samples:
 snpm.writerow(firstRow)
 
 for SNP in uniqs:
-	row = [anno[SNP][0] + "_" + SNP]
+	row = [str.replace(anno[SNP][0],",","&") + "_" + SNP]
 	annot = anno[SNP][1]
 	if anno[SNP][1] == "exonic":
 		if anno[SNP][2] == "nonsynonymous SNV":
