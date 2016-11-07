@@ -136,6 +136,8 @@ get_predictions <- function(skips,training,tmp.classes, K_hat){
 
 		###Removes any features where either group has all NAs (non-informative features)
 		training.data = training.data[which(rowSums(is.na(training.data.1)) < num_class_1 & rowSums(is.na(training.data.2)) < num_class_2),]
+		###Remove any features where all AFs are the same (non-informatic features)
+		training.data = training.data[which(apply(training.data,1, function(x) length(na.omit(unique(x)))) > 1),]
 		
 		test.data = test.data[which(rowSums(is.na(test.data)) != ncol(test.data)),]
 		
@@ -159,12 +161,15 @@ get_predictions <- function(skips,training,tmp.classes, K_hat){
   	}else{
   		
   		class1_na_rows = t(splsda.model$X[1:num_class_1,])
+  		class1_na_rows[which(apply(class1_na_rows, 1, function(x) all(is.na(x)))),] = rep(0, ncol(class1_na_rows))
   		class2_na_rows = t(splsda.model$X[(num_class_1+1):ncol(training.data),])
+  		class2_na_rows[which(apply(class2_na_rows, 1, function(x) all(is.na(x)))),] = rep(0, ncol(class2_na_rows))
   		
   	}
   	##Get mean of means for imputations
-  	imputes = rowMeans(cbind(rowMeans(class1_na_rows, na.rm=T), rowMeans(class2_na_rows, na.rm=T)))
-		test.data.impute = test.data
+  	imputes = rowMeans(cbind(rowMeans(class1_na_rows, na.rm=T), rowMeans(class2_na_rows, na.rm=T)), na.rm=T)
+		
+  	test.data.impute = test.data
 
 		##For each sample in the test set, fill the NA values with imputed values from the training set (mean of means)
 		for(samp in 1:ncol(test.data)){
@@ -357,6 +362,9 @@ if(args$predictTestSet){
 	training.data.2 = training.data[,(num_class_1+1):ncol(training.data)]
 	
 	training.data = training.data[which(rowSums(is.na(training.data.1)) < num_class_1 & rowSums(is.na(training.data.2)) < num_class_2),]
+	###Remove any features where all AFs are the same (non-informatic features)
+	training.data = training.data[which(apply(training.data,1, function(x) length(na.omit(unique(x)))) > 1),]
+	
 	testSNPs <- read.csv(args$testMatrix, header=T, stringsAsFactors=F,sep=",",  na.strings = "Na")
 	names <- testSNPs[,c(1,2)]
 	rownames(names) = names[,1]
@@ -380,7 +388,10 @@ if(args$predictTestSet){
 	test.classes = c(rep(1, numTest1), rep(2, numTest2))
 
 	class1_na_rows = training.data[,1:num_class_1]
+	class1_na_rows[which(apply(class1_na_rows, 1, function(x) all(is.na(x)))),] = rep(0, ncol(class1_na_rows))
+	
 	class2_na_rows = training.data[,(num_class_1+1):ncol(training.data)]
+	class2_na_rows[which(apply(class2_na_rows, 1, function(x) all(is.na(x)))),] = rep(0, ncol(class2_na_rows))
 	
 	##Get mean of means for imputations
 	imputes = rowMeans(cbind(rowMeans(class1_na_rows, na.rm=T), rowMeans(class2_na_rows, na.rm=T)))
